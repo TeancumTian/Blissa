@@ -3,7 +3,7 @@
 the Final MVP for Blissa//
 Rubric copyed from StartUP project 1 and 2 // the original one was call BestNow
 
-# BestNow
+# Blissa
 
 ## Specification Deliverable
 
@@ -13,7 +13,7 @@ At BestNow, we understand the frustration of spending countless hours searching 
 
 ### Design
 
-![Mock](images/bestnow.png)
+![Mock](figma-Prototype/Figma-Prototype.png)
 
 Here is a sequence diagram that shows how to people would interact with the backend to vote.
 
