@@ -9,7 +9,7 @@ Rubric copyed from StartUP project 1 and 2 // the original one was call BestNow
 
 ### Elevator pitch
 
-At BestNow, we understand the frustration of spending countless hours searching for trustworthy product reviews across multiple websites, only to be bombarded by ads and conflicting opinions. That's why we've created a platform that does the hard work for you. BestNow aggregates trending, highly rated products from trusted sources, presenting a clear, concise view of what actual users say. Whether you're looking for the latest gadget or a daily essential, BestNow helps you make confident decisions quickly and easily by showing you the best products.
+At Blissa, we simplify skincare by connecting users with professionals and delivering personalized skincare advice. Our platform features an intelligent chatbot, real-time appointment scheduling, and health progress tracking. With a seamless login system and secure cloud hosting, users can easily manage their skincare journey and consult with trusted professionals anytime.
 
 ### Design
 
@@ -19,28 +19,29 @@ Here is a sequence diagram that shows how to people would interact with the back
 
 ```mermaid
 sequenceDiagram
-    actor Alice
-    actor Juan
-    actor Bud
-    Alice->>Server: product review
-    Server -->>Juan: product review with Alice's review added
-    Server -->>Bud: product review with Alice's review added
-    Juan->>Server: Like Alice's good review
-    Server -->>Bud: Alice's review like count + 1
-    Server -->>Alice: your review like count + 1
+    participant User
+    participant Chatbot
+    participant Doctor
+    User->>Chatbot: Asks a skincare-related question
+    Chatbot-->>User: Provides AI-driven advice
+    User->>Doctor: Schedules consultation
+    Doctor-->>User: Confirms appointment
 ```
 
 ### Key features
 
-- Secure login over HTTPS
-- Collect data about a product reviews
-- display the reviews
-- Ability to let users like a review
-- Display the number of likes a review has
-- Ability to sort reviews by number of likes
-- Ability for users to add reviews
-- Ability for users to edit/delete reviews
-- People can see the reviews from different site in real time
+    •	User Authentication
+    •	Secure registration and login using MongoDB.
+    •	Google OAuth for faster sign-in.
+    •	Skincare Chatbot
+    •	Provides personalized skincare advice using AI.
+    •	Responds to queries in real time.
+    •	Consultation Scheduling
+    •	Allows users to book appointments with professionals.
+    •	Progress Tracking
+    •	Daily, weekly, and yearly logs to monitor skincare habits.
+    •	Responsive UI
+    •	User-friendly design with Vite and React for cross-platform usability.
 
 ### Technologies
 
@@ -71,12 +72,12 @@ I am going to use the required technologies in the following ways.
 
 ➡️ The following is an example of the required information for the `Startup CSS` deliverable
 
-- [ ] **Header, footer, and main content body**
-- [ ] **Navigation elements** -
-- [ ] **Responsive to window resizing** -
-- [ ] **Application elements** -
-- [ ] **Application text content** -
-- [ ] **Application images** -
+- [x] **Header, footer, and main content body**
+- [x] **Navigation elements** -
+- [x] **Responsive to window resizing** -
+- [x] **Application elements** -
+- [x] **Application text content** -
+- [x] **Application images** -
 
 ## React deliverable
 
