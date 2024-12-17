@@ -1,0 +1,101 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #fff5f7, #f5f3ff, #ecfdf5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card {
+  width: 100%;
+  max-width: 28rem;
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+.header {
+  text-align: center;
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #064e3b;
+}
+
+.subtitle {
+  color: #065f46;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  color: #065f46;
+}
+
+.input {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.loginButton {
+  width: 100%;
+  background: linear-gradient(to right, #fce7f3, #d1fae5);
+  color: #064e3b;
+}
+
+.loginButton:hover {
+  background: linear-gradient(to right, #fbcfe8, #a7f3d0);
+}
+
+.forgotPassword {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.link {
+  color: #047857;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.socialLogin {
+  margin-top: 2rem;
+}
+
+.socialText {
+  text-align: center;
+  color: #065f46;
+  margin-bottom: 1rem;
+}
+
+.socialButtons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.socialButton {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.socialIcon {
+  margin-right: 0.5rem;
+}
+
+.signupText {
+  margin-top: 2rem;
+  text-align: center;
+  color: #065f46;
+}
