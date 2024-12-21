@@ -4,6 +4,7 @@ const express = require("express");
 const app = express();
 const DB = require("./database.js");
 const { peerProxy } = require("./peerProxy.js");
+const chatRoutes = require("./routes/chatRoutes");
 
 const authCookieName = "token";
 
@@ -113,3 +114,5 @@ const httpService = app.listen(port, () => {
 });
 
 peerProxy(httpService);
+
+apiRouter.use("/api", chatRoutes);
