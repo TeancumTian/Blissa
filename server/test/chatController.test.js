@@ -1,14 +1,41 @@
 const axios = require("axios");
+const { getUser } = require("../database.js");
 require("dotenv").config();
+
+// 创建一个带认证的 axios 实例
+const api = axios.create({
+  baseURL: "http://localhost:3000/api",
+  withCredentials: true,
+});
 
 async function testChatController() {
   try {
-    console.log("开始测试 ChatController...");
+    console.log("启动 ChatController 测试...");
+    console.log("环境:", process.env.NODE_ENV || "development");
+    console.log(
+      "API 密钥状态:",
+      process.env.OPENAI_API_KEY ? "已设置" : "未设置"
+    );
+
+    // 获取测试用户并设置认证
+    const testUser = await getUser("test@example.com");
+    if (!testUser) {
+      throw new Error("测试用户不存在，请先运行用户创建测试");
+    }
+
+    // 设置认证头
+    api.defaults.headers.common["Authorization"] = `Bearer ${testUser.token}`;
+    console.log("已设置用户认证:", {
+      email: testUser.email,
+      hasToken: !!testUser.token,
+    });
+
+    console.log("\n开始测试 ChatController...");
 
     // 1. 测试基本聊天功能
     try {
       console.log("\n测试 1: 基本聊天请求");
-      const chatResponse = await axios.post("http://localhost:3000/api/chat", {
+      const chatResponse = await api.post("/chat", {
         message: "什么是维生素C精华液？",
       });
 
@@ -26,16 +53,13 @@ async function testChatController() {
     // 2. 测试带皮肤测试结果的聊天
     try {
       console.log("\n测试 2: 带皮肤测试结果的聊天");
-      const chatWithTestResponse = await axios.post(
-        "http://localhost:3000/api/chat",
-        {
-          message: "根据我的皮肤测试结果给出建议",
-          skinTestResult: {
-            summary: "混合性肌肤，T区偏油",
-            skinType: "combination",
-          },
-        }
-      );
+      const chatWithTestResponse = await api.post("/chat", {
+        message: "根据我的皮肤测试结果给出建议",
+        skinTestResult: {
+          summary: "混合性肌肤，T区偏油",
+          skinType: "combination",
+        },
+      });
 
       console.log("带测试结果的聊天响应状态:", chatWithTestResponse.status);
       console.log("AI 个性化建议:", chatWithTestResponse.data.content);
@@ -50,7 +74,7 @@ async function testChatController() {
     // 3. 测试错误处理
     try {
       console.log("\n测试 3: 错误处理");
-      await axios.post("http://localhost:3000/api/chat", {
+      await api.post("/chat", {
         // 发送空消息测试错误处理
         message: "",
       });
@@ -66,22 +90,12 @@ async function testChatController() {
     console.error("错误信息:", error.message);
 
     console.log("\n诊断信息:");
-    console.log("1. 确保 .env 文件中设置了 OPENAI_API_KEY");
-    console.log("2. 确保服务器正在运行");
-    console.log("3. 检查网络连接");
-
-    // 检查环境变量
-    console.log("\n环境变量状态:");
-    console.log(
-      "OPENAI_API_KEY:",
-      process.env.OPENAI_API_KEY ? "已设置" : "未设置"
-    );
+    console.log("1. 确保服务器正在运行");
+    console.log("2. 检查数据库连接");
+    console.log("3. 验证用户认证是否正确");
+    console.log("4. 确认 OpenAI API 密钥已设置");
   }
 }
 
 // 运行测试
-console.log("启动 ChatController 测试...");
-console.log("环境:", process.env.NODE_ENV || "development");
-console.log("API 密钥状态:", process.env.OPENAI_API_KEY ? "已设置" : "未设置");
-
 testChatController();

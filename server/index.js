@@ -7,6 +7,7 @@ const { peerProxy } = require("./peerProxy.js");
 const chatRoutes = require("./routes/chatRoutes");
 const skinTestRoutes = require("./routes/skinTestRoutes");
 const cors = require("cors");
+const mongoose = require("mongoose");
 
 const authCookieName = "token";
 
@@ -125,3 +126,23 @@ app.use(
 app.use(express.json());
 
 app.use("/api/skintest", skinTestRoutes);
+
+// 调试中间件
+app.use((req, res, next) => {
+  console.log("收到请求:", {
+    method: req.method,
+    path: req.path,
+    headers: req.headers,
+    body: req.body,
+  });
+  next();
+});
+
+// 聊天路由
+app.use("/api/chat", chatRoutes);
+
+// 错误处理中间件
+app.use((err, req, res, next) => {
+  console.error("服务器错误:", err);
+  res.status(500).json({ error: "服务器内部错误" });
+});

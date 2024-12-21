@@ -1,15 +1,29 @@
 const axios = require("axios");
+const { getUser } = require("../database.js");
 require("dotenv").config();
 
 // 创建一个带认证的 axios 实例
 const api = axios.create({
   baseURL: "http://localhost:3000/api/skintest",
-  withCredentials: true, // 允许跨域请求携带 cookies
+  withCredentials: true,
 });
 
 async function testSkinTest() {
   try {
     console.log("开始测试皮肤测试功能...");
+
+    // 0. 获取测试用户
+    const testUser = await getUser("test@example.com");
+    if (!testUser) {
+      throw new Error("测试用户不存在，请先运行用户创建测试");
+    }
+
+    // 设置认证头
+    api.defaults.headers.common["Authorization"] = `Bearer ${testUser.token}`;
+    console.log("已设置用户认证:", {
+      email: testUser.email,
+      hasToken: !!testUser.token,
+    });
 
     // 1. 测试基本连接
     try {
@@ -42,19 +56,10 @@ async function testSkinTest() {
           "No",
           "Gets oilier in summer",
         ],
-        userId: "test-user-id", // 这里需要一个有效的用户ID
+        userId: testUser._id, // 使用实际用户ID
       };
 
-      // 添加认证头
-      const headers = {
-        Authorization: "Bearer test-token", // 如果使用 Bearer token
-        "Content-Type": "application/json",
-      };
-
-      const submitResponse = await api.post("/submit", testData, {
-        headers,
-      });
-
+      const submitResponse = await api.post("/submit", testData);
       console.log("测试提交响应:", {
         status: submitResponse.status,
         skinType: submitResponse.data.result.skinType,
@@ -67,7 +72,6 @@ async function testSkinTest() {
         message: error.message,
       });
 
-      // 添加更多错误信息
       if (error.response) {
         console.log("完整错误响应:", {
           status: error.response.status,
@@ -80,7 +84,7 @@ async function testSkinTest() {
     // 3. 测试获取历史记录
     try {
       console.log("\n测试 3: 获取测试历史");
-      const historyResponse = await api.get("/history", { headers });
+      const historyResponse = await api.get("/history");
 
       console.log("历史记录获取状态:", historyResponse.status);
       console.log("测试历史数量:", historyResponse.data.length);
@@ -106,20 +110,16 @@ async function testSkinTest() {
     console.log("2. 检查数据库连接");
     console.log("3. 验证用户认证是否正确");
     console.log("4. 确认所有必要的环境变量已设置");
-
-    // 打印环境变量状态（不要在生产环境这样做）
-    console.log("\n环境变量状态:");
-    console.log("NODE_ENV:", process.env.NODE_ENV);
-    console.log("API_URL:", process.env.API_URL);
-    console.log("AUTH_TOKEN:", process.env.AUTH_TOKEN ? "已设置" : "未设置");
   }
 }
 
 // 运行测试前的环境检查
 console.log("测试环境检查:");
 console.log("1. NODE_ENV:", process.env.NODE_ENV || "development");
-console.log("2. 数据库连接:", process.env.MONGODB_URI ? "已配置" : "未配置");
-console.log("3. 服务器端口:", process.env.PORT || "3000 (默认)");
+console.log(
+  "2. 数据库连接:",
+  !!require("../dbConfig.json") ? "已配置" : "未配置"
+);
 
 // 运行测试
 testSkinTest();
