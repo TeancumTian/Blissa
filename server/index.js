@@ -5,6 +5,8 @@ const app = express();
 const DB = require("./database.js");
 const { peerProxy } = require("./peerProxy.js");
 const chatRoutes = require("./routes/chatRoutes");
+const skinTestRoutes = require("./routes/skinTestRoutes");
+const cors = require("cors");
 
 const authCookieName = "token";
 
@@ -113,3 +115,13 @@ const httpService = app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
 peerProxy(httpService);
+
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
+app.use(express.json());
+
+app.use("/api/skintest", skinTestRoutes);
