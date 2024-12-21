@@ -1,6 +1,6 @@
 .container {
   min-height: 100vh;
-  background: linear-gradient(to bottom, #fff5f7, #f5f3ff, #ecfdf5);
+  background: linear-gradient(to bottom, #fce7f3, #f3e8ff, #ecfdf5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -8,19 +8,22 @@
 
 .card {
   width: 100%;
-  max-width: 28rem;
+  max-width: 400px;
   background-color: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 2rem;
 }
 
 .header {
   text-align: center;
+  margin-bottom: 2rem;
 }
 
 .title {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: #064e3b;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #065f46;
 }
 
 .subtitle {
@@ -30,7 +33,7 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .inputGroup {
@@ -44,26 +47,35 @@
 }
 
 .input {
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
   background-color: rgba(255, 255, 255, 0.5);
 }
 
 .loginButton {
-  width: 100%;
-  background: linear-gradient(to right, #fce7f3, #d1fae5);
-  color: #064e3b;
+  padding: 0.75rem;
+  background: linear-gradient(to right, #fce7f3, #ecfdf5);
+  color: #065f46;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
 }
 
 .loginButton:hover {
-  background: linear-gradient(to right, #fbcfe8, #a7f3d0);
+  background: linear-gradient(to right, #fbcfe8, #d1fae5);
 }
 
 .forgotPassword {
-  margin-top: 1.5rem;
   text-align: center;
+  margin-top: 1rem;
 }
 
 .link {
-  color: #047857;
+  color: #065f46;
+  text-decoration: none;
 }
 
 .link:hover {
@@ -87,15 +99,23 @@
 }
 
 .socialButton {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
   background-color: rgba(255, 255, 255, 0.5);
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .socialIcon {
+  width: 20px;
+  height: 20px;
   margin-right: 0.5rem;
 }
 
 .signupText {
-  margin-top: 2rem;
   text-align: center;
+  margin-top: 2rem;
   color: #065f46;
 }

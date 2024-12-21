@@ -1,33 +1,50 @@
-import { Button, Card, Form } from "react-bootstrap";
-import styles from "./login.module.css";
+import React from "react";
+import styles from "./Login.module.css";
 
-export default function Login() {
+const LoginPage = () => {
   return (
     <div className={styles.container}>
-      <Card className={styles.card}>
-        <Card.Header className={styles.header}>
-          <Card.Title className={styles.title}>BLISSA</Card.Title>
+      <div className={styles.card}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>BLISSA</h1>
           <p className={styles.subtitle}>Simplify Skincare</p>
-        </Card.Header>
-        <Card.Body>
-          <Form className={styles.form}>
-            <Form.Group className={styles.inputGroup}>
-              <Form.Label className={styles.label}>Email</Form.Label>
-              <Form.Control
+        </div>
+        <div className={styles.content}>
+          <form className={styles.form}>
+            <div className={styles.inputGroup}>
+              <label
+                htmlFor="email"
+                className={styles.label}
+              >
+                Email
+              </label>
+              <input
+                id="email"
                 type="email"
                 placeholder="your@email.com"
                 className={styles.input}
               />
-            </Form.Group>
-            <Form.Group className={styles.inputGroup}>
-              <Form.Label className={styles.label}>Password</Form.Label>
-              <Form.Control
+            </div>
+            <div className={styles.inputGroup}>
+              <label
+                htmlFor="password"
+                className={styles.label}
+              >
+                Password
+              </label>
+              <input
+                id="password"
                 type="password"
                 className={styles.input}
               />
-            </Form.Group>
-            <Button className={styles.loginButton}>Log In</Button>
-          </Form>
+            </div>
+            <button
+              type="submit"
+              className={styles.loginButton}
+            >
+              Log In
+            </button>
+          </form>
           <div className={styles.forgotPassword}>
             <a
               href="#"
@@ -39,32 +56,22 @@ export default function Login() {
           <div className={styles.socialLogin}>
             <p className={styles.socialText}>Or log in with</p>
             <div className={styles.socialButtons}>
-              <Button
-                variant="outline-secondary"
-                className={styles.socialButton}
-              >
+              <button className={styles.socialButton}>
                 <img
-                  src="/images/placeholder.png"
+                  src="/placeholder.svg"
                   alt="Google"
-                  width={20}
-                  height={20}
                   className={styles.socialIcon}
                 />
                 Google
-              </Button>
-              <Button
-                variant="outline-secondary"
-                className={styles.socialButton}
-              >
+              </button>
+              <button className={styles.socialButton}>
                 <img
-                  src="/images/placeholder.png"
+                  src="/placeholder.svg"
                   alt="Apple"
-                  width={20}
-                  height={20}
                   className={styles.socialIcon}
                 />
                 Apple
-              </Button>
+              </button>
             </div>
           </div>
           <p className={styles.signupText}>
@@ -76,8 +83,10 @@ export default function Login() {
               Sign up
             </a>
           </p>
-        </Card.Body>
-      </Card>
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default LoginPage;

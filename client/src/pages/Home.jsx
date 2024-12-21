@@ -1,10 +1,190 @@
 import React from "react";
+import styles from "./Home.module.css";
+import {
+  Button,
+  Card,
+  CardContent,
+  Progress,
+} from "./components/ui/PlaceHolder";
+import {
+  Book,
+  HomeIcon,
+  MessageCircle,
+  TreesIcon as Plant,
+  Video,
+} from "lucide-react";
 
-export default function Home() {
+export default function App() {
   return (
-    <div>
-      <h1>Welcome to BLISSA</h1>
-      <p>Your skincare journey starts here</p>
+    <div className={styles["min-h-screen"]}>
+      <div className={styles["max-w-7xl"]}>
+        {/* Header */}
+        <header className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-4xl font-bold text-emerald-900">BLISSA</h1>
+            <p className="text-lg text-emerald-800">Simplify Skincare</p>
+          </div>
+          <Button
+            variant="ghost"
+            className="rounded-full"
+          >
+            <Card>
+              <img
+                src="/assets/placeholder.svg"
+                alt="Profile"
+                className="w-10 h-10 rounded-full"
+              />
+            </Card>
+          </Button>
+        </header>
+
+        {/* Main Content */}
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* Welcome Section */}
+          <Card className={styles["bg-white-50"]}>
+            <CardContent className="p-6 flex items-center gap-6">
+              <div className="space-y-4">
+                <h2 className="text-3xl font-bold text-emerald-900">Welcome</h2>
+                <p className="text-emerald-800">
+                  Your Guide To
+                  <br />
+                  Acne-Free Skin.
+                </p>
+                <Button className={styles["bg-gradient"]}>Get Inspired</Button>
+              </div>
+              <Card>
+                <img
+                  src="/assets/placeholder.svg"
+                  alt="Skincare Routine"
+                  className="w-[300px] h-[300px] rounded-lg hidden md:block"
+                />
+              </Card>
+            </CardContent>
+          </Card>
+
+          {/* Tracker Section */}
+          <Card className={styles["bg-white-50"]}>
+            <CardContent className="p-6">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-4">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-emerald-900"
+                  >
+                    Daily Tracker
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-emerald-900"
+                  >
+                    Weekly Tracker
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-emerald-900"
+                  >
+                    Yearly Tracker
+                  </Button>
+                </div>
+                <div className="flex flex-col items-center justify-center">
+                  <Progress
+                    value={33}
+                    className={styles["w-32"]}
+                  />
+                  <p className="mt-4 text-center text-emerald-800">
+                    3 Days
+                    <br />
+                    Check Ins This Week
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Action Cards */}
+          <Card className={styles["bg-white-50"]}>
+            <CardContent className="p-6 flex items-center gap-6">
+              <Card>
+                <img
+                  src="/assets/placeholder.svg"
+                  alt="Ask AI"
+                  className="w-[200px] h-[200px] rounded-lg hidden md:block"
+                />
+              </Card>
+              <div>
+                <h3 className="text-xl font-semibold text-emerald-900 mb-4">
+                  Ask Blissa AI
+                </h3>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                >
+                  Ask Now
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className={styles["bg-white-50"]}>
+            <CardContent className="p-6 flex items-center gap-6">
+              <Card>
+                <img
+                  src="/assets/placeholder.svg"
+                  alt="Create Appointment"
+                  className="w-[200px] h-[200px] rounded-lg hidden md:block"
+                />
+              </Card>
+              <div>
+                <h3 className="text-xl font-semibold text-emerald-900 mb-4">
+                  Create Appointment
+                </h3>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                >
+                  Book Now
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Navigation */}
+        <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-md px-6 py-4 rounded-full shadow-lg">
+          <div className="flex items-center gap-8">
+            <Button
+              variant="ghost"
+              size="icon"
+            >
+              <Book className="w-6 h-6 text-emerald-900" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+            >
+              <Plant className="w-6 h-6 text-emerald-900" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+            >
+              <HomeIcon className="w-6 h-6 text-emerald-900" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+            >
+              <MessageCircle className="w-6 h-6 text-emerald-900" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+            >
+              <Video className="w-6 h-6 text-emerald-900" />
+            </Button>
+          </div>
+        </nav>
+      </div>
     </div>
   );
 }
