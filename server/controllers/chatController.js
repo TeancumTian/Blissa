@@ -9,7 +9,7 @@ class ChatController {
     try {
       console.log("收到聊天请求:", req.body); // 调试日志
 
-      const { message } = req.body;
+      const { message, skinTestResult } = req.body; // 从请求体中获取 skinTestResult
       if (!message) {
         return res.status(400).json({ error: "消息不能为空" });
       }
