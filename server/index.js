@@ -39,31 +39,73 @@ app.use((req, res, next) => {
 
 // 创建 Auth 令牌
 app.post("/api/auth/create", async (req, res) => {
-  if (await DB.getUser(req.body.email)) {
-    res.status(409).send({ msg: "Existing user" });
-  } else {
-    const user = await DB.createUser(req.body.email, req.body.password);
+  try {
+    const { email, password } = req.body;
 
-    // 设置 Cookie
+    // 验证请求数据
+    if (!email || !password) {
+      return res.status(400).json({ msg: "邮箱和密码不能为空" });
+    }
+
+    // 检查用户是否存在
+    const existingUser = await DB.getUser(email);
+    if (existingUser) {
+      return res.status(409).json({ msg: "用户已存在" });
+    }
+
+    // 创建新用户
+    const user = await DB.createUser(email, password);
+
+    // 设置认证 cookie
     setAuthCookie(res, user.token);
 
-    res.send({
+    // 返回用户信息
+    res.json({
       id: user._id,
+      token: user.token,
+      email: user.email,
     });
+  } catch (error) {
+    console.error("用户创建错误:", error);
+    res.status(500).json({ msg: "服务器错误：" + error.message });
   }
 });
 
 // 获取 Auth 令牌
 app.post("/api/auth/login", async (req, res) => {
-  const user = await DB.getUser(req.body.email);
-  if (user) {
-    if (await bcrypt.compare(req.body.password, user.password)) {
-      setAuthCookie(res, user.token);
-      res.send({ id: user._id });
-      return;
+  try {
+    const { email, password } = req.body;
+
+    // 验证请求数据
+    if (!email || !password) {
+      return res.status(400).json({ msg: "邮箱和密码不能为空" });
     }
+
+    // 查找用户
+    const user = await DB.getUser(email);
+    if (!user) {
+      return res.status(401).json({ msg: "用户不存在" });
+    }
+
+    // 验证密码
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) {
+      return res.status(401).json({ msg: "密码错误" });
+    }
+
+    // 设置认证 cookie
+    setAuthCookie(res, user.token);
+
+    // 返回用户信息
+    res.json({
+      id: user._id,
+      token: user.token,
+      email: user.email,
+    });
+  } catch (error) {
+    console.error("登录错误:", error);
+    res.status(500).json({ msg: "服务器错误：" + error.message });
   }
-  res.status(401).send({ msg: "Unauthorized" });
 });
 
 // 删除 Auth 令牌
@@ -113,7 +155,7 @@ app.get("/api/test", (req, res) => {
 // 错误处理中间件
 app.use((err, req, res, next) => {
   console.error("服务器错误:", err);
-  res.status(500).json({ error: "服务器内部错误" });
+  res.status(500).json({ error: "服务器内部错���" });
 });
 
 // 默认路由处理
@@ -128,3 +170,13 @@ const httpService = app.listen(PORT, () => {
 
 // 设置 WebSocket 代理
 peerProxy(httpService);
+
+// 定义 cookie 名称和设置函数
+function setAuthCookie(res, token) {
+  res.cookie(authCookieName, token, {
+    secure: true,
+    httpOnly: true,
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7天
+  });
+}

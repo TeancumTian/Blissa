@@ -42,7 +42,8 @@ const LoginPage = () => {
         setError(data.msg || "认证失败");
       }
     } catch (err) {
-      setError("服务器错误,请稍后重试");
+      console.error("认证错误:", err);
+      setError(err.message || "服务器错误,请稍后重试");
     }
   };
 
