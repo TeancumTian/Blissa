@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./Login.module.css"; // 复用 Login 的样式
 
 const Chat = () => {
@@ -6,6 +7,7 @@ const Chat = () => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
+  const navigate = useNavigate();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -41,7 +43,9 @@ const Chat = () => {
       });
 
       if (response.status === 401) {
-        window.location.href = "/login";
+        console.log("认证失败，重定向到登录页面");
+        localStorage.removeItem("token"); // 清除无效的 token
+        navigate("/login");
         return;
       }
 

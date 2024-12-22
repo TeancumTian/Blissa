@@ -24,8 +24,13 @@ function getUser(email) {
   return userCollection.findOne({ email: email });
 }
 
-function getUserByToken(token) {
-  return userCollection.findOne({ token: token });
+async function getUserByToken(token) {
+  try {
+    return await userCollection.findOne({ token });
+  } catch (error) {
+    console.error("通过token查询用户错误:", error);
+    throw error;
+  }
 }
 
 async function createUser(email, password) {
@@ -56,10 +61,24 @@ function getHighScores() {
   return cursor.toArray();
 }
 
+async function updateUser(userId, updates) {
+  try {
+    const result = await userCollection.updateOne(
+      { _id: userId },
+      { $set: updates }
+    );
+    return result.acknowledged;
+  } catch (error) {
+    console.error("更新用户错误:", error);
+    throw error;
+  }
+}
+
 module.exports = {
   getUser,
   getUserByToken,
   createUser,
   addScore,
   getHighScores,
+  updateUser,
 };

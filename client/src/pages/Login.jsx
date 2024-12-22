@@ -36,8 +36,13 @@ const LoginPage = () => {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem("token", data.token);
-        navigate("/");
+        console.log("登录成功，token:", data.token);
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+          navigate("/");
+        } else {
+          setError("服务器响应中缺少token");
+        }
       } else {
         setError(data.msg || "认证失败");
       }

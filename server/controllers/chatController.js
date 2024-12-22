@@ -7,7 +7,12 @@ const openai = new OpenAI({
 class ChatController {
   async handleChat(req, res) {
     try {
-      const { message, skinTestResult } = req.body;
+      console.log("收到聊天请求:", req.body); // 调试日志
+
+      const { message } = req.body;
+      if (!message) {
+        return res.status(400).json({ error: "消息不能为空" });
+      }
 
       // 构建系统提示词
       const systemPrompt = `
@@ -35,7 +40,11 @@ class ChatController {
       const completion = await openai.chat.completions.create({
         model: "gpt-3.5-turbo",
         messages: messages,
+        temperature: 0.7,
+        max_tokens: 1000,
       });
+
+      console.log("OpenAI 响应:", completion.choices[0]); // 调试日志
 
       const content = completion.choices[0].message.content;
       const followUpQuestions = this.extractQuestions(content);
@@ -51,9 +60,29 @@ class ChatController {
   }
 
   extractQuestions(content) {
-    const regex = /^\d+\.\s(.*?\?)$/gm;
-    const allQuestions = content.match(regex) || [];
-    return allQuestions.map((question) => question.replace(/^\d+\.\s/, ""));
+    // 提取文本末尾的问题建议
+    const lines = content.split("\n");
+    const questions = [];
+
+    for (let i = lines.length - 1; i >= 0; i--) {
+      const line = lines[i].trim();
+      if (line.endsWith("?") || line.endsWith("？")) {
+        questions.unshift(line);
+      } else if (questions.length > 0) {
+        // 如果已经找到问题，并遇到非问句，则停止搜索
+        break;
+      }
+    }
+
+    return questions.length > 0 ? questions : this.generateDefaultQuestions();
+  }
+
+  generateDefaultQuestions() {
+    return [
+      "您想了解更多关于护肤步骤的信息吗？",
+      "您是否有特定的肌肤问题需要解决？",
+      "您想知道如何选择适合的护肤品吗？",
+    ];
   }
 }
 

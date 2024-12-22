@@ -9,6 +9,7 @@ const skinTestRoutes = require("./routes/skinTestRoutes");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const liveKitRoutes = require("./routes/liveKitRoutes");
+const jwt = require("jsonwebtoken");
 
 const authCookieName = "token";
 const PORT = process.env.PORT || 3000;
@@ -76,35 +77,43 @@ app.post("/api/auth/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // 验证请求数据
     if (!email || !password) {
       return res.status(400).json({ msg: "邮箱和密码不能为空" });
     }
 
-    // 查找用户
     const user = await DB.getUser(email);
     if (!user) {
       return res.status(401).json({ msg: "用户不存在" });
     }
 
-    // 验证密码
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) {
       return res.status(401).json({ msg: "密码错误" });
     }
 
-    // 设置认证 cookie
-    setAuthCookie(res, user.token);
+    // 生成新的 token
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET || "dev-secret",
+      { expiresIn: "7d" }
+    );
 
-    // 返回用户信息
+    // 更新用户的 token
+    user.token = token;
+    await DB.updateUser(user._id, { token });
+
+    // 设置 cookie
+    setAuthCookie(res, token);
+
+    // 返回用户信息和 token
     res.json({
       id: user._id,
-      token: user.token,
       email: user.email,
+      token: token, // 确保返回 token
     });
   } catch (error) {
     console.error("登录错误:", error);
-    res.status(500).json({ msg: "服务器错误：" + error.message });
+    res.status(500).json({ msg: "服务器错误" });
   }
 });
 
@@ -155,7 +164,7 @@ app.get("/api/test", (req, res) => {
 // 错误处理中间件
 app.use((err, req, res, next) => {
   console.error("服务器错误:", err);
-  res.status(500).json({ error: "服务器内部错���" });
+  res.status(500).json({ error: "服务器内部错误" });
 });
 
 // 默认路由处理
