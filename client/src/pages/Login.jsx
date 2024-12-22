@@ -1,7 +1,20 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./Login.module.css";
 
 const LoginPage = () => {
+  const navigate = useNavigate();
+
+  const handleLoginSuccess = () => {
+    localStorage.setItem("token", "your-auth-token");
+    navigate("/");
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.card}>

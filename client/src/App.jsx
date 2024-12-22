@@ -1,10 +1,33 @@
-import React, { useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import LiveKitMeeting from "./pages/LiveKitMeeting";
 import ErrorBoundary from "./components/ErrorBoundary";
 import LiveKitTest from "./pages/LiveKitTest";
+
+// 添加受保护的路由组件
+const ProtectedRoute = ({ children }) => {
+  // 检查用户是否已登录（根据您的认证方式来实现）
+  const isAuthenticated = localStorage.getItem("token"); // 或其他验证方式
+
+  if (!isAuthenticated) {
+    // 未登录时重定向到登录页
+    return (
+      <Navigate
+        to="/login"
+        replace
+      />
+    );
+  }
+
+  return children;
+};
 
 function App() {
   return (
@@ -12,21 +35,38 @@ function App() {
       <ErrorBoundary>
         <div>
           <Routes>
+            {/* 将根路径重定向到home */}
             <Route
               path="/"
-              element={<Home />}
+              element={
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              }
             />
+
+            {/* 登录页面不需要保护 */}
             <Route
               path="/login"
               element={<Login />}
             />
+
+            {/* 其他需要保护的路由 */}
             <Route
               path="/meeting/:roomId?"
-              element={<LiveKitMeeting />}
+              element={
+                <ProtectedRoute>
+                  <LiveKitMeeting />
+                </ProtectedRoute>
+              }
             />
             <Route
               path="/test"
-              element={<LiveKitTest />}
+              element={
+                <ProtectedRoute>
+                  <LiveKitTest />
+                </ProtectedRoute>
+              }
             />
           </Routes>
         </div>
