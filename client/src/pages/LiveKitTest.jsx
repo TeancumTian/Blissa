@@ -1,70 +1,59 @@
-import React, { useState, useEffect } from "react";
-import { Room } from "livekit-client";
+import React, { useState } from "react";
 
 function LiveKitTest() {
-  const [status, setStatus] = useState("初始化");
+  const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState(null);
+  const [status, setStatus] = useState("");
   const [connectionDetails, setConnectionDetails] = useState(null);
 
   const testConnection = async () => {
     try {
-      setStatus("正在获取 token...");
+      setIsConnecting(true);
       setError(null);
+      setStatus("开始测试连接...");
 
       const room = "test-room";
       const username = "test-user";
 
-      console.log("开始请求 token:", { room, username });
+      setStatus("正在请求 LiveKit token...");
 
       const response = await fetch(
         `/api/livekit?room=${room}&username=${username}`,
         {
+          method: "GET",
           headers: {
             Accept: "application/json",
           },
         }
       );
 
-      const data = await response.json();
-      console.log("服务器响应:", data);
+      const responseText = await response.text();
+      console.log("API 原始响应:", responseText);
 
-      if (!response.ok) {
-        throw new Error(data.details || data.error || "获取 token 失败");
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        throw new Error(`服务器响应格式错误: ${responseText}`);
       }
 
-      if (!data.token || !data.wsUrl) {
-        throw new Error("服务器返回的数据不完整");
+      if (!response.ok) {
+        throw new Error(data.error || "获取 token 失败");
       }
 
       setConnectionDetails(data);
-      setStatus("获取到 token，正在连接...");
+      setStatus("成功获取 token！");
 
-      // LiveKit 连接测试
-      const liveKitRoom = new Room({
-        // 添加更多日志
-        logLevel: "debug",
+      console.log("连接信息:", {
+        hasToken: !!data.token,
+        wsUrl: data.wsUrl,
       });
-
-      liveKitRoom.on("connected", () => {
-        console.log("LiveKit 连接成功");
-        setStatus("连接成功！");
-      });
-
-      liveKitRoom.on("disconnected", () => {
-        console.log("LiveKit 连接断开");
-        setStatus("已断开连接");
-      });
-
-      liveKitRoom.on("error", (error) => {
-        console.error("LiveKit 错误:", error);
-        setError(`LiveKit 错误: ${error.message}`);
-      });
-
-      await liveKitRoom.connect(data.wsUrl, data.token);
     } catch (err) {
       console.error("测试失败:", err);
       setError(err.message);
       setStatus("测试失败");
+    } finally {
+      setIsConnecting(false);
     }
   };
 
@@ -72,28 +61,34 @@ function LiveKitTest() {
     <div className="p-4">
       <h1 className="text-xl mb-4">LiveKit 连接测试</h1>
 
-      <button
-        onClick={testConnection}
-        className="bg-blue-500 text-white px-4 py-2 rounded"
-      >
-        开始测试
-      </button>
+      <div className="space-y-4">
+        <button
+          onClick={testConnection}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          disabled={isConnecting}
+        >
+          {isConnecting ? "测试中..." : "开始测试"}
+        </button>
 
-      <div className="mt-4">
-        <p>状态: {status}</p>
+        <div className="mt-4">
+          <p className="font-bold">
+            当前状态: <span className="font-normal">{status}</span>
+          </p>
 
-        {error && (
-          <div className="mt-2 p-2 bg-red-100 text-red-700 rounded">
-            错误: {error}
-          </div>
-        )}
+          {error && (
+            <div className="mt-2 p-4 bg-red-100 text-red-700 rounded">
+              错误: {error}
+            </div>
+          )}
 
-        {connectionDetails && (
-          <div className="mt-2 p-2 bg-gray-100 rounded">
-            <p>Token: {connectionDetails.token.slice(0, 20)}...</p>
-            <p>WebSocket URL: {connectionDetails.wsUrl}</p>
-          </div>
-        )}
+          {connectionDetails && (
+            <div className="mt-4 p-4 bg-green-100 text-green-700 rounded">
+              <p>连接成功！</p>
+              <p>Token: {connectionDetails.token.slice(0, 20)}...</p>
+              <p>WebSocket URL: {connectionDetails.wsUrl}</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
