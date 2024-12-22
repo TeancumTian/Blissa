@@ -1,18 +1,49 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Login.module.css";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const [isLogin, setIsLogin] = useState(true);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
 
-  const handleLoginSuccess = () => {
-    localStorage.setItem("token", "your-auth-token");
-    navigate("/");
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.id]: e.target.value,
+    });
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const endpoint = isLogin ? "/api/auth/login" : "/api/auth/create";
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem("token", data.token);
+        navigate("/");
+      } else {
+        setError(data.msg || "认证失败");
+      }
+    } catch (err) {
+      setError("服务器错误,请稍后重试");
+    }
   };
 
   return (
@@ -23,7 +54,11 @@ const LoginPage = () => {
           <p className={styles.subtitle}>Simplify Skincare</p>
         </div>
         <div className={styles.content}>
-          <form className={styles.form}>
+          <form
+            className={styles.form}
+            onSubmit={handleSubmit}
+          >
+            {error && <div className={styles.error}>{error}</div>}
             <div className={styles.inputGroup}>
               <label
                 htmlFor="email"
@@ -36,6 +71,9 @@ const LoginPage = () => {
                 type="email"
                 placeholder="your@email.com"
                 className={styles.input}
+                value={formData.email}
+                onChange={handleInputChange}
+                required
               />
             </div>
             <div className={styles.inputGroup}>
@@ -49,51 +87,29 @@ const LoginPage = () => {
                 id="password"
                 type="password"
                 className={styles.input}
+                value={formData.password}
+                onChange={handleInputChange}
+                required
               />
             </div>
             <button
               type="submit"
               className={styles.loginButton}
             >
-              Log In
+              {isLogin ? "登录" : "注册"}
             </button>
           </form>
-          <div className={styles.forgotPassword}>
-            <a
-              href="#"
-              className={styles.link}
-            >
-              Forgot password?
-            </a>
-          </div>
-          <div className={styles.socialLogin}>
-            <p className={styles.socialText}>Or log in with</p>
-            <div className={styles.socialButtons}>
-              <button className={styles.socialButton}>
-                <img
-                  src="/placeholder.svg"
-                  alt="Google"
-                  className={styles.socialIcon}
-                />
-                Google
-              </button>
-              <button className={styles.socialButton}>
-                <img
-                  src="/placeholder.svg"
-                  alt="Apple"
-                  className={styles.socialIcon}
-                />
-                Apple
-              </button>
-            </div>
-          </div>
           <p className={styles.signupText}>
-            Don't have an account?{" "}
+            {isLogin ? "还没有账号?" : "已有账号?"}{" "}
             <a
               href="#"
               className={styles.link}
+              onClick={(e) => {
+                e.preventDefault();
+                setIsLogin(!isLogin);
+              }}
             >
-              Sign up
+              {isLogin ? "注册" : "登录"}
             </a>
           </p>
         </div>
