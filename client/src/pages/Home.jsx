@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import styles from "./Home.module.css";
 import {
   Button,
@@ -15,6 +16,36 @@ import {
 } from "lucide-react";
 
 export default function App() {
+  const [currentQuote, setCurrentQuote] = useState({
+    content: "Loading...",
+    category: "",
+    language: "en",
+  });
+
+  const fetchRandomQuote = async () => {
+    try {
+      // 可以通过 language 参数指定获取中文或英文语录
+      const response = await fetch("/api/quotes/random?language=en");
+      if (!response.ok) {
+        throw new Error("获取语录失败");
+      }
+      const data = await response.json();
+      setCurrentQuote(data);
+    } catch (error) {
+      console.error("Error fetching quote:", error);
+      // 设置一个默认语录，以防获取失败
+      setCurrentQuote({
+        content: "Beauty comes from inner confidence.",
+        category: "confidence",
+        language: "en",
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchRandomQuote();
+  }, []);
+
   return (
     <div className={styles["min-h-screen"]}>
       <div className={styles["max-w-7xl"]}>
@@ -40,63 +71,27 @@ export default function App() {
 
         {/* Main Content */}
         <div className="grid lg:grid-cols-2 gap-6">
-          {/* Welcome Section */}
+          {/* Welcome Section - Updated with Quote */}
           <Card className={styles["bg-white-50"]}>
-            <CardContent className="p-6 flex items-center gap-6">
-              <div className="space-y-4">
-                <h2 className="text-3xl font-bold text-emerald-900">Welcome</h2>
-                <p className="text-emerald-800">
-                  Your Guide To
-                  <br />
-                  Acne-Free Skin.
-                </p>
-                <Button className={styles["bg-gradient"]}>Get Inspired</Button>
-              </div>
-              <Card>
-                <img
-                  src="/assets/placeholder.svg"
-                  alt="Skincare Routine"
-                  className="w-[300px] h-[300px] rounded-lg hidden md:block"
-                />
-              </Card>
-            </CardContent>
-          </Card>
-
-          {/* Tracker Section */}
-          <Card className={styles["bg-white-50"]}>
-            <CardContent className="p-6">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-4">
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-emerald-900"
-                  >
-                    Daily Tracker
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-emerald-900"
-                  >
-                    Weekly Tracker
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-emerald-900"
-                  >
-                    Yearly Tracker
-                  </Button>
-                </div>
-                <div className="flex flex-col items-center justify-center">
-                  <Progress
-                    value={33}
-                    className={styles["w-32"]}
-                  />
-                  <p className="mt-4 text-center text-emerald-800">
-                    3 Days
-                    <br />
-                    Check Ins This Week
+            <CardContent className="p-6 flex flex-col items-center gap-6">
+              <div className="space-y-4 text-center w-full">
+                <h2 className="text-3xl font-bold text-emerald-900">
+                  Daily Inspiration
+                </h2>
+                <Card className="p-8 bg-gradient-to-r from-emerald-50 to-teal-50">
+                  <p className="text-xl text-emerald-800 italic">
+                    "{currentQuote.content}"
                   </p>
-                </div>
+                  <div className="mt-4 text-sm text-emerald-600 capitalize">
+                    #{currentQuote.category}
+                  </div>
+                </Card>
+                <button
+                  className={`${styles["bg-gradient"]} px-4 py-2 rounded-lg text-white`}
+                  onClick={fetchRandomQuote}
+                >
+                  New Quote
+                </button>
               </div>
             </CardContent>
           </Card>
@@ -115,12 +110,13 @@ export default function App() {
                 <h3 className="text-xl font-semibold text-emerald-900 mb-4">
                   Ask Blissa AI
                 </h3>
-                <Button
-                  variant="outline"
-                  className="w-full"
-                >
-                  Ask Now
-                </Button>
+                <Link to="/chat">
+                  <button
+                    className={`${styles["bg-gradient"]} px-4 py-2 rounded-lg text-white w-full`}
+                  >
+                    Ask Now
+                  </button>
+                </Link>
               </div>
             </CardContent>
           </Card>
@@ -138,12 +134,13 @@ export default function App() {
                 <h3 className="text-xl font-semibold text-emerald-900 mb-4">
                   Create Appointment
                 </h3>
-                <Button
-                  variant="outline"
-                  className="w-full"
-                >
-                  Book Now
-                </Button>
+                <Link to="/appointment">
+                  <button
+                    className={`${styles["bg-gradient"]} px-4 py-2 rounded-lg text-white w-full`}
+                  >
+                    Book Now
+                  </button>
+                </Link>
               </div>
             </CardContent>
           </Card>

@@ -11,6 +11,7 @@ import LiveKitMeeting from "./pages/LiveKitMeeting";
 import ErrorBoundary from "./components/ErrorBoundary";
 import LiveKitTest from "./pages/LiveKitTest";
 import Chat from "./pages/Chat";
+import Appointment from "./pages/Appointment";
 
 // 添加受保护的路由组件
 const ProtectedRoute = ({ children }) => {
@@ -74,6 +75,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Chat />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/appointment"
+              element={
+                <ProtectedRoute>
+                  <Appointment />
                 </ProtectedRoute>
               }
             />

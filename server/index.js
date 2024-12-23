@@ -10,11 +10,32 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const liveKitRoutes = require("./routes/liveKitRoutes");
 const jwt = require("jsonwebtoken");
+const expertRoutes = require("./routes/expertRoutes");
+const messageRoutes = require("./routes/messageRoutes");
 const quoteRoutes = require("./routes/quoteRoutes");
+const initQuotes = require("./init/initQuotes");
 
 const authCookieName = "token";
 const PORT = process.env.PORT || 3000;
 const FRONTEND_URL = "http://localhost:5173"; // 统一前端端口
+
+// 添加MongoDB连接
+mongoose
+  .connect(
+    "mongodb+srv://BlissaDB:ERcf3HsZ8JGbcRgg@blissa.mcauor7.mongodb.net/blissa",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
+  )
+  .then(() => console.log("MongoDB连接成功"))
+  .catch((err) => console.error("MongoDB连接失败:", err));
+
+// 在数据库连接成功后初始化数据
+mongoose.connection.once("open", () => {
+  console.log("MongoDB连接成功，开始初始化数据...");
+  initQuotes();
+});
 
 // 基础中间件配置
 app.use(express.json());
@@ -156,7 +177,8 @@ secureApiRouter.post("/score", async (req, res) => {
 app.use("/api/skintest", skinTestRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/livekit", liveKitRoutes);
-app.use("/api/quotes", quoteRoutes);
+app.use("/api/experts", expertRoutes);
+app.use("/api/messages", messageRoutes);
 
 // 测试路由
 app.get("/api/test", (req, res) => {
@@ -178,7 +200,6 @@ app.use((err, req, res, next) => {
 const httpService = app.listen(PORT, () => {
   console.log(`服务器运行在端口 ${PORT}`);
 });
-
 // 设置 WebSocket 代理
 peerProxy(httpService);
 
@@ -191,3 +212,5 @@ function setAuthCookie(res, token) {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7天
   });
 }
+
+app.use("/api/quotes", quoteRoutes);

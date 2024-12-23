@@ -7,28 +7,39 @@ class QuoteController {
       const { language = "zh", category } = req.query;
 
       // 构建查询条件
-      const query = {
-        active: true,
-        language,
-      };
-
+      const query = { language };
       if (category) {
         query.category = category;
       }
 
-      // 随机获取一条记录
-      const count = await Quote.countDocuments(query);
-      const random = Math.floor(Math.random() * count);
-      const quote = await Quote.findOne(query).skip(random);
+      // 使用aggregate进行随机获取
+      const quotes = await Quote.aggregate([
+        { $match: query },
+        { $sample: { size: 1 } },
+      ]);
 
-      if (!quote) {
-        return res.status(404).json({ error: "未找到相关名言" });
+      if (!quotes || quotes.length === 0) {
+        return res.status(404).json({
+          error: "未找到相关名言",
+          fallback: {
+            content: "护肤不是一朝一夕的事，而是每一天的坚持。",
+            category: "skincare",
+            language: "zh",
+          },
+        });
       }
 
-      res.json(quote);
+      res.json(quotes[0]);
     } catch (error) {
       console.error("获取随机名言错误:", error);
-      res.status(500).json({ error: "服务器错误" });
+      res.status(500).json({
+        error: "服务器错误",
+        fallback: {
+          content: "护肤不是一朝一夕的事，而是每一天的坚持。",
+          category: "skincare",
+          language: "zh",
+        },
+      });
     }
   }
 

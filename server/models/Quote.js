@@ -6,23 +6,14 @@ const quoteSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    author: {
-      type: String,
-      default: "匿名",
-    },
     category: {
       type: String,
-      enum: ["skincare", "wellness", "confidence", "health", "beauty"],
-      default: "skincare",
+      required: true,
     },
     language: {
       type: String,
-      enum: ["zh", "en"],
-      default: "zh",
-    },
-    active: {
-      type: Boolean,
-      default: true,
+      enum: ["en", "zh"],
+      default: "en",
     },
   },
   {
