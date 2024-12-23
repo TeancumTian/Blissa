@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import chatStyles from "./Login.module.css"; // 复用 Login 的样式
-import homeStyles from "./Home.module.css"; // Home的样式，用于按钮
+import styles from "./Login.module.css"; // 复用 Login 的样式
+import Navbar from "../components/Navbar";
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
@@ -45,7 +45,7 @@ const Chat = () => {
 
       if (response.status === 401) {
         console.log("认证失败，重定向到登录页面");
-        localStorage.removeItem("token"); // 清除无效的 token
+        localStorage.removeItem("token"); // 清��无效的 token
         navigate("/login");
         return;
       }
@@ -82,31 +82,31 @@ const Chat = () => {
   };
 
   return (
-    <div className={chatStyles.container}>
+    <div className={styles.container}>
       <div
-        className={chatStyles.card}
+        className={styles.card}
         style={{ height: "80vh", width: "80vw" }}
       >
-        <div className={chatStyles.header}>
-          <h1 className={chatStyles.title}>BLISSA AI</h1>
-          <p className={chatStyles.subtitle}>您的智能护肤助手</p>
+        <div className={styles.header}>
+          <h1 className={styles.title}>BLISSA AI</h1>
+          <p className={styles.subtitle}>您的智能护肤助手</p>
         </div>
 
-        <div className={chatStyles.chatContent}>
-          <div className={chatStyles.messages}>
+        <div className={styles.chatContent}>
+          <div className={styles.messages}>
             {messages.map((msg, idx) => (
               <div
                 key={idx}
-                className={`${chatStyles.message} ${chatStyles[msg.role]}`}
+                className={`${styles.message} ${styles[msg.role]}`}
               >
-                <div className={chatStyles.messageContent}>{msg.content}</div>
+                <div className={styles.messageContent}>{msg.content}</div>
                 {msg.followUpQuestions && (
-                  <div className={chatStyles.followUp}>
-                    <p className={chatStyles.followUpTitle}>您可以继续问:</p>
+                  <div className={styles.followUp}>
+                    <p className={styles.followUpTitle}>您可以继续问:</p>
                     {msg.followUpQuestions.map((q, i) => (
                       <button
                         key={i}
-                        className={`${homeStyles["bg-gradient"]} px-4 py-2 rounded-lg text-white w-full mt-2`}
+                        className={styles.followUpButton}
                         onClick={() => setInput(q)}
                       >
                         {q}
@@ -116,25 +116,25 @@ const Chat = () => {
                 )}
               </div>
             ))}
-            {loading && <div className={chatStyles.loading}>思考中...</div>}
+            {loading && <div className={styles.loading}>思考中...</div>}
             <div ref={messagesEndRef} />
           </div>
 
           <form
             onSubmit={handleSubmit}
-            className={chatStyles.inputForm}
+            className={styles.inputForm}
           >
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="输入您的问题..."
-              className={chatStyles.chatInput}
+              className={styles.chatInput}
               disabled={loading}
             />
             <button
               type="submit"
-              className={`${homeStyles["bg-gradient"]} px-4 py-2 rounded-lg text-white`}
+              className={styles.sendButton}
               disabled={loading}
             >
               发送
@@ -142,6 +142,7 @@ const Chat = () => {
           </form>
         </div>
       </div>
+      <Navbar />
     </div>
   );
 };

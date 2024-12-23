@@ -14,6 +14,7 @@ import {
   TreesIcon as Plant,
   Video,
 } from "lucide-react";
+import Navbar from "../components/Navbar";
 
 export default function App() {
   const [currentQuote, setCurrentQuote] = useState({
@@ -55,6 +56,7 @@ export default function App() {
             <h1 className="text-4xl font-bold text-emerald-900">BLISSA</h1>
             <p className="text-lg text-emerald-800">Simplify Skincare</p>
           </div>
+          <Navbar />
         </header>
 
         {/* Main Content */}
@@ -117,42 +119,6 @@ export default function App() {
             </CardContent>
           </Card>
         </div>
-
-        {/* Navigation */}
-        <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-md px-6 py-4 rounded-full shadow-lg">
-          <div className="flex items-center gap-8">
-            <Button
-              variant="ghost"
-              size="icon"
-            >
-              <Book className="w-6 h-6 text-emerald-900" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-            >
-              <Plant className="w-6 h-6 text-emerald-900" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-            >
-              <HomeIcon className="w-6 h-6 text-emerald-900" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-            >
-              <MessageCircle className="w-6 h-6 text-emerald-900" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-            >
-              <Video className="w-6 h-6 text-emerald-900" />
-            </Button>
-          </div>
-        </nav>
       </div>
     </div>
   );
