@@ -55,18 +55,6 @@ export default function App() {
             <h1 className="text-4xl font-bold text-emerald-900">BLISSA</h1>
             <p className="text-lg text-emerald-800">Simplify Skincare</p>
           </div>
-          <Button
-            variant="ghost"
-            className="rounded-full"
-          >
-            <Card>
-              <img
-                src="/assets/placeholder.svg"
-                alt="Profile"
-                className="w-10 h-10 rounded-full"
-              />
-            </Card>
-          </Button>
         </header>
 
         {/* Main Content */}
@@ -78,35 +66,25 @@ export default function App() {
                 <h2 className="text-3xl font-bold text-emerald-900">
                   Daily Inspiration
                 </h2>
-                <Card className="p-8 bg-gradient-to-r from-emerald-50 to-teal-50">
-                  <p className="text-xl text-emerald-800 italic">
+                <button
+                  onClick={fetchRandomQuote}
+                  className={`${styles["bg-gradient"]} px-4 py-2 rounded-lg w-full`}
+                >
+                  <p className="text-xl text-gray-900 italic">
                     "{currentQuote.content}"
                   </p>
-                  <div className="mt-4 text-sm text-emerald-600 capitalize">
+                  <div className="mt-4 text-sm text-gray-700 capitalize">
                     #{currentQuote.category}
                   </div>
-                </Card>
-                <button
-                  className={`${styles["bg-gradient"]} px-4 py-2 rounded-lg text-white`}
-                  onClick={fetchRandomQuote}
-                >
-                  New Quote
                 </button>
               </div>
             </CardContent>
           </Card>
 
-          {/* Action Cards */}
+          {/* Ask AI Card */}
           <Card className={styles["bg-white-50"]}>
-            <CardContent className="p-6 flex items-center gap-6">
-              <Card>
-                <img
-                  src="/assets/placeholder.svg"
-                  alt="Ask AI"
-                  className="w-[200px] h-[200px] rounded-lg hidden md:block"
-                />
-              </Card>
-              <div>
+            <CardContent className="p-6 flex flex-col items-center gap-6">
+              <div className="space-y-4 text-center w-full">
                 <h3 className="text-xl font-semibold text-emerald-900 mb-4">
                   Ask Blissa AI
                 </h3>
@@ -121,16 +99,10 @@ export default function App() {
             </CardContent>
           </Card>
 
+          {/* Appointment Card */}
           <Card className={styles["bg-white-50"]}>
-            <CardContent className="p-6 flex items-center gap-6">
-              <Card>
-                <img
-                  src="/assets/placeholder.svg"
-                  alt="Create Appointment"
-                  className="w-[200px] h-[200px] rounded-lg hidden md:block"
-                />
-              </Card>
-              <div>
+            <CardContent className="p-6 flex flex-col items-center gap-6">
+              <div className="space-y-4 text-center w-full">
                 <h3 className="text-xl font-semibold text-emerald-900 mb-4">
                   Create Appointment
                 </h3>

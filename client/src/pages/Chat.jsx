@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import styles from "./Login.module.css"; // 复用 Login 的样式
+import chatStyles from "./Login.module.css"; // 复用 Login 的样式
+import homeStyles from "./Home.module.css"; // Home的样式，用于按钮
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
@@ -81,31 +82,31 @@ const Chat = () => {
   };
 
   return (
-    <div className={styles.container}>
+    <div className={chatStyles.container}>
       <div
-        className={styles.card}
+        className={chatStyles.card}
         style={{ height: "80vh", width: "80vw" }}
       >
-        <div className={styles.header}>
-          <h1 className={styles.title}>BLISSA AI</h1>
-          <p className={styles.subtitle}>您的智能护肤助手</p>
+        <div className={chatStyles.header}>
+          <h1 className={chatStyles.title}>BLISSA AI</h1>
+          <p className={chatStyles.subtitle}>您的智能护肤助手</p>
         </div>
 
-        <div className={styles.chatContent}>
-          <div className={styles.messages}>
+        <div className={chatStyles.chatContent}>
+          <div className={chatStyles.messages}>
             {messages.map((msg, idx) => (
               <div
                 key={idx}
-                className={`${styles.message} ${styles[msg.role]}`}
+                className={`${chatStyles.message} ${chatStyles[msg.role]}`}
               >
-                <div className={styles.messageContent}>{msg.content}</div>
+                <div className={chatStyles.messageContent}>{msg.content}</div>
                 {msg.followUpQuestions && (
-                  <div className={styles.followUp}>
-                    <p className={styles.followUpTitle}>您可以继续问:</p>
+                  <div className={chatStyles.followUp}>
+                    <p className={chatStyles.followUpTitle}>您可以继续问:</p>
                     {msg.followUpQuestions.map((q, i) => (
                       <button
                         key={i}
-                        className={styles.followUpButton}
+                        className={`${homeStyles["bg-gradient"]} px-4 py-2 rounded-lg text-white w-full mt-2`}
                         onClick={() => setInput(q)}
                       >
                         {q}
@@ -115,25 +116,25 @@ const Chat = () => {
                 )}
               </div>
             ))}
-            {loading && <div className={styles.loading}>思考中...</div>}
+            {loading && <div className={chatStyles.loading}>思考中...</div>}
             <div ref={messagesEndRef} />
           </div>
 
           <form
             onSubmit={handleSubmit}
-            className={styles.inputForm}
+            className={chatStyles.inputForm}
           >
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="输入您的问题..."
-              className={styles.chatInput}
+              className={chatStyles.chatInput}
               disabled={loading}
             />
             <button
               type="submit"
-              className={styles.sendButton}
+              className={`${homeStyles["bg-gradient"]} px-4 py-2 rounded-lg text-white`}
               disabled={loading}
             >
               发送
