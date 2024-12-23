@@ -10,6 +10,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const liveKitRoutes = require("./routes/liveKitRoutes");
 const jwt = require("jsonwebtoken");
+const quoteRoutes = require("./routes/quoteRoutes");
 
 const authCookieName = "token";
 const PORT = process.env.PORT || 3000;
@@ -155,6 +156,7 @@ secureApiRouter.post("/score", async (req, res) => {
 app.use("/api/skintest", skinTestRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/livekit", liveKitRoutes);
+app.use("/api/quotes", quoteRoutes);
 
 // 测试路由
 app.get("/api/test", (req, res) => {
