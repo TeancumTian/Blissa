@@ -7,18 +7,28 @@ const openai = new OpenAI({
 class ChatController {
   async handleChat(req, res) {
     try {
-      console.log("收到聊天请求:", req.body); // 调试日志
+      console.log("收到聊天请求:", req.body);
 
-      const { message, skinTestResult } = req.body; // 从请求体中获取 skinTestResult
+      const { message, skinTestResult } = req.body;
       if (!message) {
         return res.status(400).json({ error: "消息不能为空" });
       }
 
-      // 构建系统提示词
+      // 修改系统提示词，使其更明确
       const systemPrompt = `
         You are Vidia, a highly intelligent skincare assistant designed to provide personalized and expert-level guidance on skincare routines, product recommendations, dietary advice, and treatments. 
-        Always respond with clarity, empathy, and backed by credible sources. Your primary goals are to educate users, build trust, and help them achieve their skincare goals. Be professional, yet approachable. Maintain a friendly and understanding tone, especially for sensitive topics.
-        After every answer, generate 2-3 related follow-up questions that encourage deeper exploration of the topic for users to ask more.
+
+        You MUST format your response in exactly two parts, separated by a line containing only "---":
+
+        Part 1: Your direct answer to the user's question
+        [Your detailed answer goes here]
+
+        ---
+
+        Part 2: Follow-up questions (2-3 questions only)
+        [List your follow-up questions here, one per line, each ending with a question mark]
+
+        Remember: Always include the separator "---" on its own line between your answer and questions.
       `;
 
       const messages = [
@@ -26,7 +36,6 @@ class ChatController {
         { role: "user", content: message },
       ];
 
-      // 如果有皮肤测试结果，添加到消息中
       if (skinTestResult) {
         messages.push({
           role: "user",
@@ -44,13 +53,39 @@ class ChatController {
         max_tokens: 1000,
       });
 
-      console.log("OpenAI 响应:", completion.choices[0]); // 调试日志
+      console.log("OpenAI 响应:", completion.choices[0]);
 
-      const content = completion.choices[0].message.content;
-      const followUpQuestions = this.extractQuestions(content);
+      // 分离回答内容和后续问题
+      const fullContent = completion.choices[0].message.content;
+      let mainContent, questionsSection;
+
+      // 严格按照 "---" 分隔符分割内容
+      if (fullContent.includes("---")) {
+        [mainContent, questionsSection] = fullContent
+          .split("---")
+          .map((part) => part.trim());
+      } else {
+        // 如果没有分隔符，将所有内容作为主要回答
+        mainContent = fullContent;
+        questionsSection = "";
+      }
+
+      // 提取后续问题，确保只获取问题部分
+      const followUpQuestions = questionsSection
+        ? this.extractQuestions(questionsSection)
+        : this.generateDefaultQuestions();
+
+      // 清理主要内容，确保不包含问题部分
+      mainContent = mainContent
+        .split("\n")
+        .filter(
+          (line) => !line.trim().endsWith("?") && !line.trim().endsWith("？")
+        )
+        .join("\n")
+        .trim();
 
       res.json({
-        content,
+        content: mainContent,
         followUpQuestions,
       });
     } catch (error) {
@@ -60,19 +95,16 @@ class ChatController {
   }
 
   extractQuestions(content) {
-    // 提取文本末尾的问题建议
-    const lines = content.split("\n");
-    const questions = [];
-
-    for (let i = lines.length - 1; i >= 0; i--) {
-      const line = lines[i].trim();
-      if (line.endsWith("?") || line.endsWith("？")) {
-        questions.unshift(line);
-      } else if (questions.length > 0) {
-        // 如果已经找到问题，并遇到非问句，则停止搜索
-        break;
-      }
-    }
+    // 提取文本中的问题
+    const questions = content
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(
+        (line) =>
+          (line.endsWith("?") || line.endsWith("？")) &&
+          !line.startsWith("Part") &&
+          line.length > 1
+      );
 
     return questions.length > 0 ? questions : this.generateDefaultQuestions();
   }

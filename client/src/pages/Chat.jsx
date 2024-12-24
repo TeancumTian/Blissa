@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import styles from "./Login.module.css"; // 复用 Login 的样式
+import { useNavigate, useLocation } from "react-router-dom";
+import styles from "./Login.module.css";
 import Navbar from "../components/Navbar";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
@@ -9,22 +11,30 @@ const Chat = () => {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const location = useLocation();
+  const { initialQuestion, skinTestResult } = location.state || {};
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!input.trim()) return;
+  // 处理初始问题
+  useEffect(() => {
+    if (initialQuestion) {
+      handleSendMessage(initialQuestion);
+    }
+  }, []);
 
-    const userMessage = input.trim();
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleSendMessage = async (message) => {
+    if (!message.trim()) return;
+
+    // 添加用户消息到对话
+    setMessages((prev) => [...prev, { role: "user", content: message }]);
     setInput("");
-    setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     setLoading(true);
 
     try {
@@ -33,19 +43,21 @@ const Chat = () => {
         throw new Error("未登录");
       }
 
-      const response = await fetch("/api/chat", {
+      const response = await fetch(`${API_BASE_URL}/api/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({
+          message,
+          skinTestResult, // 包含皮肤测试结果
+        }),
         credentials: "include",
       });
 
       if (response.status === 401) {
-        console.log("认证失败，重定向到登录页面");
-        localStorage.removeItem("token"); // 清��无效的 token
+        localStorage.removeItem("token");
         navigate("/login");
         return;
       }
@@ -53,12 +65,13 @@ const Chat = () => {
       const data = await response.json();
 
       if (response.ok) {
+        // 添加助手回复到对话
         setMessages((prev) => [
           ...prev,
           {
             role: "assistant",
-            content: data.content,
-            followUpQuestions: data.followUpQuestions,
+            content: data.content, // 主要回答内容
+            followUpQuestions: data.followUpQuestions, // 后续问题
           },
         ]);
       } else {
@@ -73,12 +86,17 @@ const Chat = () => {
           content:
             err.message === "未登录"
               ? "请先登录"
-              : "抱歉,发生错误。请稍后重试。",
+              : "抱歉，发生错误。请稍后重试。",
         },
       ]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    handleSendMessage(input);
   };
 
   return (
@@ -99,21 +117,28 @@ const Chat = () => {
                 key={idx}
                 className={`${styles.message} ${styles[msg.role]}`}
               >
+                {/* 消息内容 */}
                 <div className={styles.messageContent}>{msg.content}</div>
-                {msg.followUpQuestions && (
-                  <div className={styles.followUp}>
-                    <p className={styles.followUpTitle}>您可以继续问:</p>
-                    {msg.followUpQuestions.map((q, i) => (
-                      <button
-                        key={i}
-                        className={styles.followUpButton}
-                        onClick={() => setInput(q)}
-                      >
-                        {q}
-                      </button>
-                    ))}
-                  </div>
-                )}
+
+                {/* 后续问题建议 */}
+                {msg.role === "assistant" &&
+                  msg.followUpQuestions &&
+                  msg.followUpQuestions.length > 0 && (
+                    <div className={styles.followUp}>
+                      <p className={styles.followUpTitle}>您可能想问：</p>
+                      <div className={styles.followUpQuestions}>
+                        {msg.followUpQuestions.map((question, i) => (
+                          <button
+                            key={i}
+                            className={styles.followUpButton}
+                            onClick={() => handleSendMessage(question)}
+                          >
+                            {question}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
               </div>
             ))}
             {loading && <div className={styles.loading}>思考中...</div>}
@@ -135,7 +160,7 @@ const Chat = () => {
             <button
               type="submit"
               className={styles.sendButton}
-              disabled={loading}
+              disabled={loading || !input.trim()}
             >
               发送
             </button>
