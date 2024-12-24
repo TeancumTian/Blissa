@@ -1,3 +1,4 @@
+//require('dotenv').config();
 const cookieParser = require("cookie-parser");
 const bcrypt = require("bcrypt");
 const express = require("express");
@@ -93,7 +94,7 @@ app.post("/api/auth/create", async (req, res) => {
       email: user.email,
     });
   } catch (error) {
-    console.error("用户创建错误:", error);
+    console.error("用���创建错误:", error);
     res.status(500).json({ msg: "服务器错误：" + error.message });
   }
 });

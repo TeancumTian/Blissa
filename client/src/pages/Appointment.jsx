@@ -31,7 +31,7 @@ const Appointment = () => {
 
       // 尝试获取错误详情
       const data = await response.json();
-      console.log("服务器响应:", data);
+      console.log("���务器响应:", data);
 
       if (!response.ok) {
         throw new Error(
@@ -86,9 +86,7 @@ const Appointment = () => {
   };
 
   return (
-    
     <div className={styles.container}>
-      
       <div className={styles.card}>
         <div className={styles.header}>
           <h1 className={styles.title}>预约专家</h1>

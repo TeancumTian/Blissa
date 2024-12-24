@@ -3,8 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import styles from "./Login.module.css";
 import Navbar from "../components/Navbar";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-
 const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -43,7 +41,7 @@ const Chat = () => {
         throw new Error("未登录");
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/chat`, {
+      const response = await fetch(`/api/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -51,7 +49,7 @@ const Chat = () => {
         },
         body: JSON.stringify({
           message,
-          skinTestResult, // 包含皮肤测试结果
+          skinTestResult,
         }),
         credentials: "include",
       });

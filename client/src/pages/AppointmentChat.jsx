@@ -53,7 +53,8 @@ const AppointmentChat = () => {
   };
 
   const initializeWebSocket = () => {
-    const ws = new WebSocket("ws://localhost:3000");
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const ws = new WebSocket(`${protocol}//${window.location.host}`);
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -69,7 +70,7 @@ const AppointmentChat = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("/api/messages/send", {
+      const response = await fetch(`/api/messages/send`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
