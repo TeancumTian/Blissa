@@ -1,33 +1,25 @@
 const jwt = require("jsonwebtoken");
-const { getUserByToken } = require("../database");
 
 const auth = async (req, res, next) => {
   try {
-    const token = req.header("Authorization")?.replace("Bearer ", "");
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "未提供认证令牌" });
+    }
+
+    const token = authHeader.split(" ")[1];
 
     if (!token) {
-      throw new Error("No authentication token provided");
+      return res.status(401).json({ message: "未提供认证令牌" });
     }
 
-    // 验证 token
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "dev-secret");
-
-    // 从数据库验证用户
-    const user = await getUserByToken(token);
-    if (!user) {
-      throw new Error("User not found");
-    }
-
-    // 将用户信息添加到请求对象
-    req.user = {
-      _id: decoded.userId,
-      email: user.email,
-    };
-
+    req.user = { _id: decoded.userId };
     next();
   } catch (error) {
     console.error("认证错误:", error);
-    res.status(401).json({ error: "Please authenticate" });
+    res.status(401).json({ message: "认证失败" });
   }
 };
 

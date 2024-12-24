@@ -15,6 +15,10 @@ const messageRoutes = require("./routes/messageRoutes");
 const quoteRoutes = require("./routes/quoteRoutes");
 const initQuotes = require("./init/initQuotes");
 
+// ... 其他代码 ...
+
+// 添加路由
+
 const authCookieName = "token";
 const PORT = process.env.PORT || 3000;
 const FRONTEND_URL = "http://localhost:5173"; // 统一前端端口

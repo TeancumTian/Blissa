@@ -12,6 +12,8 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import LiveKitTest from "./pages/LiveKitTest";
 import Chat from "./pages/Chat";
 import Appointment from "./pages/Appointment";
+import SkinTest from "./pages/SkinTest";
+import About from "./pages/About";
 
 // 添加受保护的路由组件
 const ProtectedRoute = ({ children }) => {
@@ -83,6 +85,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Appointment />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/skintest"
+              element={
+                <ProtectedRoute>
+                  <SkinTest />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/about"
+              element={
+                <ProtectedRoute>
+                  <About />
                 </ProtectedRoute>
               }
             />
