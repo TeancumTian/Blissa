@@ -103,11 +103,12 @@ const Chat = () => {
     <div className={styles.container}>
       <div
         className={styles.card}
-        style={{ height: "80vh", width: "80vw" }}
+        style={{ height: "100vh", width: "100vw" }}
       >
         <div className={styles.header}>
           <h1 className={styles.title}>BLISSA AI</h1>
           <p className={styles.subtitle}>您的智能护肤助手</p>
+          <Navbar />
         </div>
 
         <div className={styles.chatContent}>
@@ -167,7 +168,6 @@ const Chat = () => {
           </form>
         </div>
       </div>
-      <Navbar />
     </div>
   );
 };
