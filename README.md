@@ -1,127 +1,111 @@
-# Blissa
+# Blissa - Skincare Consultation Platform
 
-the Final MVP for Blissa//
-Rubric copyed from StartUP project 1 and 2 // the original one was call BestNow
+## Overview
 
-# Blissa
+Blissa is a comprehensive skincare consultation platform that connects users with professionals and provides personalized skincare advice through AI-powered features.
 
-## Specification Deliverable
+### Key Features
 
-### Elevator pitch
+- [x] **User Authentication**
 
-At Blissa, we simplify skincare by connecting users with professionals and delivering personalized skincare advice. Our platform features an intelligent chatbot, real-time appointment scheduling, and health progress tracking. With a seamless login system and secure cloud hosting, users can easily manage their skincare journey and consult with trusted professionals anytime.
+  - [x] Secure email/password registration and login
+  - [ ] Google OAuth integration
+  - [x] JWT token-based authentication
 
-### Design
+- [x] **Skincare Assessment**
 
-![Mock](figma-Prototype/FigmaDesign.png)
+  - [x] Interactive skin type questionnaire
+  - [x] AI-powered skin analysis
+  - [x] Personalized skincare recommendations
+  - [x] Progress tracking and history
 
-Here is a sequence diagram that shows how to people would interact with the backend to vote.
+- [ ] **Professional Consultation**
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant Chatbot
-    participant Doctor
-    User->>Chatbot: Asks a skincare-related question
-    Chatbot-->>User: Provides AI-driven advice
-    User->>Doctor: Schedules consultation
-    Doctor-->>User: Confirms appointment
-```
+  - [ ] Real-time chat with skincare professionals
+  - [ ] Video consultation scheduling
+  - [ ] Appointment management
 
-### Key features
-
-    •	User Authentication
-    •	Secure registration and login using MongoDB.
-    •	Google OAuth for faster sign-in.
-    •	Skincare Chatbot
-    •	Provides personalized skincare advice using AI.
-    •	Responds to queries in real time.
-    •	Consultation Scheduling
-    •	Allows users to book appointments with professionals.
-    •	Progress Tracking
-    •	Daily, weekly, and yearly logs to monitor skincare habits.
-    •	Responsive UI
-    •	User-friendly design with Vite and React for cross-platform usability.
+- [ ] **AI Chatbot**
+  - [ ] Personalized skincare advice
+  - [ ] Real-time responses
+  - [ ] Follow-up question suggestions
 
 ### Technologies
 
-I am going to use the required technologies in the following ways.
+#### Frontend
 
-- **HTML** - Uses correct HTML structure for application. Start with three HTML pages. One for login and one for write reviews, and one for displaying reviews.
-- **CSS** - Application styling that looks good on different screen sizes, uses good whitespace, color choice and contrast.
-- **React** - Provides login, choice display, display the product reviews data from different site, and use of React for routing and components.
-- **Service** - Backend service with endpoints for:
-  - login
-  - retrieving review data
-  - submitting new reviews
-- **DB/Login** - Store users, people's reviews in database. Register and login users. Credentials securely stored in database. Can't review a product unless authenticated.
-- **WebSocket** - As each review got liked, the like count will be updated in real time.
+- [x] React + Vite
+- [ ] TailwindCSS for styling (in progress)
+- [x] React Router for navigation
+- [ ] WebSocket for real-time features (in progress)
+- [x] Responsive design
 
-## HTML deliverable
+#### Backend
 
-➡️ The following is an example of the required information for the `Startup HTML` deliverable
+- [x] Node.js/Express
+- [x] MongoDB for data storage // User info, Inspiration, Test history
+- [x] JWT authentication
+- [x] WebSocket server
+- [x] RESTful API endpoints
+- [x] Third-party integrations (Google OAuth, LiveKit)
 
-- [x] **HTML pages** - Lots of HTML page that represent the ability to login and display reviews and write reviews.
-- [x] **Links** - The login page automatically links to the Home page(home page contains product review products). The Home page has a link to the write review page.
-- [x] **Text** - The login page has a login form. The Home page has a list of products with reviews. The write review page has a form to write a review.
-- [x] **Images** - Images will be added for represent the products.
-- [x] **DB/Login** - Input box and submit button for login. Review form for write review page.
-- [x] **WebSocket** - The review count will be updated in real time. People will receive notification when a new comments or like is added to his post.
+### API Endpoints
 
-## CSS deliverable
+- [ ] **Authentication**
 
-➡️ The following is an example of the required information for the `Startup CSS` deliverable
+  - [x] POST /api/auth/login
+  - [x] POST /api/auth/create
+  - [ ] POST /api/auth/google (in progress)
 
-- [x] **Header, footer, and main content body**
-- [x] **Navigation elements** -
-- [x] **Responsive to window resizing** -
-- [x] **Application elements** -
-- [x] **Application text content** -
-- [x] **Application images** -
+- [x] **Skin Test**
 
-## React deliverable
+  - [x] POST /api/skintest/submit
+  - [x] GET /api/skintest/latest
+  - [x] PUT /api/skintest/update
 
-➡️ The following is an example of the required information for the `Startup React` deliverable
+- [ ] **Chat**
 
-- [ ] **Bundled and transpiled** -
-- [ ] **Components** -
-  - [ ] **login** -
-  - [ ] **database** -
-  - [ ] **WebSocket** -
-  - [ ] **application logic** -
-- [ ] **Router** -
-- [ ] **Hooks** -
+  - [x] POST /api/chat
+  - [ ] WebSocket connections for real-time messaging
 
-## Service deliverable
+- [ ] **Appointments** (in progress)
+  - [ ] POST /api/appointments/create
+  - [ ] GET /api/appointments/list
+  - [ ] PUT /api/appointments/update
+  - [ ] DELETE /api/appointments/cancel
 
-➡️ The following is an example of the required information for the `Startup Service` deliverable
+### Database Schema
 
-- [ ] **Node.js/Express HTTP service** -
-- [ ] **Static middleware for frontend** -
-- [ ] **Calls to third party endpoints** -
-- [ ] **Backend service endpoints** -
-- [ ] **Frontend calls service endpoints** -
+- [x] **Users Collection**
 
-## DB/Login deliverable
+  - [x] Authentication credentials
+  - [x] Profile information
+  - [x] Test history
 
-➡️ The following is an example of the required information for the `Startup DB/Login` deliverable
+- [x] **Skin Tests Collection**
 
-- [ ] **MongoDB Atlas database created** -
-- [ ] **Stores data in MongoDB** -
-- [ ] **User registration** -
-- [ ] **existing user** -
-- [ ] **Use MongoDB to store credentials** -
-- [ ] **Restricts functionality** -
+  - [x] Test results
+  - [x] AI analysis
 
-## WebSocket deliverable
+- [ ] **Chat History** (in Progress)
+  - [ ] User messages
+  - [ ] AI responses
+  - [ ] Timestamps
 
-➡️ The following is an example of the required information for the `Startup WebSocket` deliverable
+### Security Features
 
-- [ ] **Backend listens for WebSocket connection** -
-- [ ] **Frontend makes WebSocket connection** -
-- [ ] **Data sent over WebSocket connection** -
-- [ ] **WebSocket data displayed** -
+- [x] JWT token authentication
+- [x] Secure password hashing
+- [x] Protected routes
+- [x] CORS configuration
+- [x] Environment variable management
 
-## Notes
+## Development Status
 
-For more details on what I learned, check out my [notes.md](./notes.md).
+- [x] User Authentication
+- [x] Skin Test Implementation
+- [x] AI Chat Integration
+- [x] Professional Consultation (In Progress)
+- [x] Responsive UI
+- [ ] Google OAuth Integration (In Progress)
+- [ ] WebSocket Real-time Features (In Progress)
