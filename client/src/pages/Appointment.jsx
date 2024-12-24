@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Login.module.css";
-
+import Navbar from "../components/Navbar";
 const Appointment = () => {
   const [experts, setExperts] = useState([]);
   const [selectedExpert, setSelectedExpert] = useState(null);
@@ -86,7 +86,9 @@ const Appointment = () => {
   };
 
   return (
+    
     <div className={styles.container}>
+      
       <div className={styles.card}>
         <div className={styles.header}>
           <h1 className={styles.title}>预约专家</h1>

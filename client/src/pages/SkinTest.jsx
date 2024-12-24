@@ -23,52 +23,56 @@ const skinTypeImages = {
 // 添加问题数组
 const questions = [
   {
-    question: "您的皮肤通常感觉如何？",
-    options: ["平衡舒适", "干燥紧绷", "某些部位油腻，其他部位正常"],
+    question: "Your skin usually feels how?",
+    options: [
+      "Balanced and comfortable",
+      "Dry and tight",
+      "Some areas oily, others normal",
+    ],
   },
   {
-    question: "您的毛孔状况如何？",
-    options: ["非常明显", "有些明显", "不太明显"],
+    question: "How is your skin's pore condition?",
+    options: ["Very obvious", "Somewhat obvious", "Not very obvious"],
   },
   {
-    question: "您是否容易长痘？",
-    options: ["很少", "偶尔", "经常"],
+    question: "Do you tend to break out?",
+    options: ["Rarely", "Occasionally", "Frequently"],
   },
   {
-    question: "洗脸后皮肤会持续出油吗？",
-    options: ["部分区域都会", "仅T区会", "很少出油"],
+    question: "Does your skin feel oily after washing?",
+    options: ["All areas", "Only T-zone", "Very little oil"],
   },
   {
-    question: "您的皮肤会感觉紧绷干燥吗？",
-    options: ["很少", "脸颊部位会", "经常"],
+    question: "Does your skin feel tight and dry?",
+    options: ["Rarely", "Cheeks", "Often"],
   },
   {
-    question: "您有细纹和皱纹吗？",
-    options: ["完全没有", "眼部有一些", "比较明显"],
+    question: "Do you have fine lines and wrinkles?",
+    options: ["None", "Eye area", "Quite noticeable"],
   },
   {
-    question: "您多久使用一次护肤品？",
-    options: ["从不使用", "每周2-3次", "每天使用"],
+    question: "How often do you use skincare products?",
+    options: ["Never", "2-3 times a week", "Every day"],
   },
   {
-    question: "您的肤色是否不均匀，有色斑？",
-    options: ["很少", "有一些", "比较多"],
+    question: "Is your skin uneven, with spots?",
+    options: ["Rarely", "Some", "Quite a lot"],
   },
   {
-    question: "您的皮肤对某些护肤品是否会过敏？",
-    options: ["从不", "偶尔", "经常"],
+    question: "Does your skin react negatively to certain skincare products?",
+    options: ["Never", "Occasionally", "Frequently"],
   },
   {
-    question: "您的皮肤会分泌过多油脂吗？",
-    options: ["不会", "有一点", "会"],
+    question: "Does your skin produce too much oil?",
+    options: ["No", "A little", "Yes"],
   },
   {
-    question: "您的眼部是否有细纹？",
-    options: ["没有", "有", "比较明显"],
+    question: "Do you have wrinkles around your eyes?",
+    options: ["No", "Yes", "Quite noticeable"],
   },
   {
-    question: "季节变化时您的皮肤会有什么反应？",
-    options: ["保持不变", "冬天更干", "夏天更油"],
+    question: "How does your skin react during seasonal changes?",
+    options: ["Stay the same", "Dry in winter", "Oilier in summer"],
   },
 ];
 
@@ -91,7 +95,7 @@ export default function SkinTest() {
       try {
         const token = localStorage.getItem("token");
         if (!token) {
-          console.log("未登录状态");
+          console.log("Not logged in");
           return;
         }
 
@@ -123,7 +127,7 @@ export default function SkinTest() {
           }
         }
       } catch (error) {
-        console.error("获取历史记录失败:", error);
+        console.error("Failed to get history:", error);
       }
     };
 
@@ -162,7 +166,7 @@ export default function SkinTest() {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        navigate("/login");
+        console.log("Not logged in");
         return;
       }
 
@@ -185,7 +189,7 @@ export default function SkinTest() {
       }
 
       if (!response.ok) {
-        throw new Error("提交测试失败");
+        throw new Error("Test submission failed");
       }
 
       const data = await response.json();
@@ -193,7 +197,7 @@ export default function SkinTest() {
       setPreviousTest(data.result);
     } catch (error) {
       console.error("Error:", error);
-      alert("测试提交失败，请稍后重试");
+      alert("Test submission failed, please try again later");
     } finally {
       setLoading(false);
     }
@@ -204,16 +208,17 @@ export default function SkinTest() {
       setLoading(true);
       const token = localStorage.getItem("token");
       if (!token) {
-        navigate("/login");
+        console.log("Not logged in");
         return;
       }
 
       const skinTestData = {
-        message: "请根据我的皮肤测试结果，为我提供个性化的护肤建议。",
+        message:
+          "Based on my skin test results, please provide personalized skincare advice.",
         skinTestResult: {
-          summary: `用户的皮肤类型为${
+          summary: `User's skin type is ${
             result.skinType
-          }，主要特征包括：${result.description.join("；")}`,
+          }, main characteristics include: ${result.description.join("; ")}`,
           skinType: result.skinType,
         },
       };
@@ -229,7 +234,7 @@ export default function SkinTest() {
       });
 
       if (!response.ok) {
-        throw new Error("请求失败");
+        throw new Error("Request failed");
       }
 
       const data = await response.json();
@@ -258,11 +263,11 @@ export default function SkinTest() {
       });
 
       if (!saveResponse.ok) {
-        console.error("保存分析结果失败");
+        console.error("Failed to save analysis result");
       }
     } catch (error) {
-      console.error("处理继续按钮错误:", error);
-      alert("获取个性化建议失败，请稍后重试");
+      console.error("Continue button error:", error);
+      alert("Failed to get personalized advice, please try again later");
     } finally {
       setLoading(false);
     }
@@ -273,13 +278,13 @@ export default function SkinTest() {
       <Navbar />
       <div className={`${styles["max-w-7xl"]} mx-auto px-4 pt-20`}>
         <h1 className="text-3xl font-bold text-emerald-900 mb-8 text-center">
-          皮肤测试
+          Skin Test
         </h1>
 
         {previousTest && !result && (
           <div className="max-w-2xl mx-auto mb-8 p-4 bg-white/50 backdrop-blur-sm rounded-lg">
             <h3 className="text-xl font-semibold text-emerald-800 mb-4">
-              您的上次测试结果
+              Your Last Test Result
             </h3>
             <div className="flex items-center gap-4 mb-4">
               <img
@@ -289,10 +294,10 @@ export default function SkinTest() {
               />
               <div>
                 <p className="font-medium text-emerald-900">
-                  皮肤类型: {previousTest.skinType}
+                  Skin Type: {previousTest.skinType}
                 </p>
                 <p className="text-sm text-emerald-600">
-                  测试时间:{" "}
+                  Test Date:{" "}
                   {new Date(previousTest.timestamp).toLocaleDateString()}
                 </p>
               </div>
@@ -301,13 +306,13 @@ export default function SkinTest() {
               onClick={() => setResult(previousTest)}
               className={`${styles["bg-gradient"]} px-4 py-2 rounded-lg text-white mr-2`}
             >
-              查看详细结果
+              View Details
             </button>
             <button
               onClick={handleStartNewTest}
               className="px-4 py-2 text-emerald-700 hover:text-emerald-900"
             >
-              重新测试
+              Take New Test
             </button>
           </div>
         )}
@@ -316,7 +321,7 @@ export default function SkinTest() {
           <div className="max-w-2xl mx-auto space-y-8">
             <div className="mb-4">
               <h2 className="text-xl font-semibold text-emerald-800 text-center">
-                问题 {currentQuestion + 1} / {questions.length}
+                Question {currentQuestion + 1} / {questions.length}
               </h2>
               <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
                 <div
@@ -351,7 +356,7 @@ export default function SkinTest() {
           <div className="max-w-2xl mx-auto space-y-8">
             <div className="text-center">
               <h2 className="text-2xl font-bold text-emerald-900 mb-4">
-                您的皮肤类型: {result.skinType}
+                Your Skin Type: {result.skinType}
               </h2>
               <div className="relative w-64 h-64 mx-auto mb-8">
                 <img
@@ -384,7 +389,7 @@ export default function SkinTest() {
             {showAnalysis ? (
               <div className="space-y-6 bg-white/50 backdrop-blur-sm rounded-lg p-6">
                 <h3 className="text-xl font-semibold text-emerald-800">
-                  个性化护肤建议
+                  Personalized Skincare Advice
                 </h3>
                 {loading ? (
                   <div className="flex justify-center items-center py-4">
@@ -401,7 +406,7 @@ export default function SkinTest() {
                     {gptAnalysis?.followUpQuestions?.length > 0 && (
                       <div className="mt-6">
                         <h4 className="font-medium text-emerald-800 mb-3">
-                          您可能想问：
+                          You might want to ask:
                         </h4>
                         <div className="space-y-2">
                           {gptAnalysis.followUpQuestions.map(
@@ -438,7 +443,7 @@ export default function SkinTest() {
                   loading ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
-                {loading ? "分析中..." : "开始个性化咨询"}
+                {loading ? "Analyzing..." : "Get Personalized Advice"}
               </button>
             )}
           </div>

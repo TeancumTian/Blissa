@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import styles from "../pages/Home.module.css";
 import {
   Book,
@@ -6,12 +6,21 @@ import {
   MessageCircle,
   ClipboardCheck,
   Info,
+  LogIn,
+  LogOut,
 } from "lucide-react";
 
 export default function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const isLoggedIn = !!localStorage.getItem("token");
 
   const isActive = (path) => location.pathname === path;
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md shadow-sm z-50">
@@ -73,6 +82,27 @@ export default function Navbar() {
                 <span className="text-white text-sm">About Us</span>
               </button>
             </Link>
+
+            {isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                className={`${styles["bg-gradient"]} px-3 py-1.5 rounded-md opacity-70 hover:opacity-100 flex items-center gap-1.5`}
+              >
+                <LogOut className="w-4 h-4 text-white" />
+                <span className="text-white text-sm">Logout</span>
+              </button>
+            ) : (
+              <Link to="/login">
+                <button
+                  className={`${styles["bg-gradient"]} px-3 py-1.5 rounded-md ${
+                    isActive("/login") ? "opacity-100" : "opacity-70"
+                  } flex items-center gap-1.5`}
+                >
+                  <LogIn className="w-4 h-4 text-white" />
+                  <span className="text-white text-sm">Login</span>
+                </button>
+              </Link>
+            )}
           </div>
         </div>
       </div>
