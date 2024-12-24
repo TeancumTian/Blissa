@@ -81,6 +81,8 @@ export default function SkinTest() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [previousTest, setPreviousTest] = useState(null);
+  const [gptAnalysis, setGptAnalysis] = useState(null);
+  const [showAnalysis, setShowAnalysis] = useState(false);
   const navigate = useNavigate();
 
   // 获取历史测试记录
@@ -178,8 +180,73 @@ export default function SkinTest() {
     }
   };
 
-  const handleContinue = () => {
-    navigate("/chat", { state: { skinTestResult: result } });
+  const handleContinue = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
+      const skinTestData = {
+        message: "请根据我的皮肤测试结果，为我提供个性化的护肤建议。",
+        skinTestResult: {
+          summary: `用户的皮肤类型为${
+            result.skinType
+          }，主要特征包括：${result.description.join("；")}`,
+          skinType: result.skinType,
+        },
+      };
+
+      const response = await fetch(`${API_BASE_URL}/api/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+        body: JSON.stringify(skinTestData),
+      });
+
+      if (!response.ok) {
+        throw new Error("请求失败");
+      }
+
+      const data = await response.json();
+
+      // 更新 GPT 分析状态
+      setGptAnalysis(data);
+      setShowAnalysis(true);
+
+      // 更新测试结果，包含 GPT 分析
+      const updatedResult = {
+        ...result,
+        gptAnalysis: data.content,
+        followUpQuestions: data.followUpQuestions,
+      };
+      setResult(updatedResult);
+
+      // 保存更新后的结果
+      const saveResponse = await fetch(`${API_BASE_URL}/api/skintest/update`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({ result: updatedResult }),
+      });
+
+      if (!saveResponse.ok) {
+        console.error("保存分析结果失败");
+      }
+    } catch (error) {
+      console.error("处理继续按钮错误:", error);
+      alert("获取个性化建议失败，请稍后重试");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -295,12 +362,66 @@ export default function SkinTest() {
               ))}
             </div>
 
-            <button
-              onClick={handleContinue}
-              className={`${styles["bg-gradient"]} px-6 py-3 rounded-lg text-white w-full text-center text-lg font-medium hover:opacity-90 transition-opacity`}
-            >
-              开始个性化咨询
-            </button>
+            {showAnalysis ? (
+              <div className="space-y-6 bg-white/50 backdrop-blur-sm rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-emerald-800">
+                  个性化护肤建议
+                </h3>
+                {loading ? (
+                  <div className="flex justify-center items-center py-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-700"></div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="prose prose-emerald max-w-none">
+                      <p className="text-emerald-800 whitespace-pre-wrap">
+                        {gptAnalysis?.content}
+                      </p>
+                    </div>
+
+                    {gptAnalysis?.followUpQuestions?.length > 0 && (
+                      <div className="mt-6">
+                        <h4 className="font-medium text-emerald-800 mb-3">
+                          您可能想问：
+                        </h4>
+                        <div className="space-y-2">
+                          {gptAnalysis.followUpQuestions.map(
+                            (question, index) => (
+                              <div
+                                key={index}
+                                className="p-3 bg-emerald-50 rounded-lg text-emerald-700 cursor-pointer hover:bg-emerald-100 transition-colors"
+                                onClick={() =>
+                                  navigate("/chat", {
+                                    state: {
+                                      initialQuestion: question,
+                                      skinTestResult: result,
+                                    },
+                                  })
+                                }
+                              >
+                                {question}
+                              </div>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={handleContinue}
+                disabled={loading}
+                className={`${
+                  styles["bg-gradient"]
+                } px-6 py-3 rounded-lg text-white w-full text-center text-lg font-medium hover:opacity-90 transition-opacity ${
+                  loading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                {loading ? "分析中..." : "开始个性化咨询"}
+              </button>
+            )}
           </div>
         )}
       </div>
