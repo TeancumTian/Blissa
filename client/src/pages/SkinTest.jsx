@@ -112,6 +112,14 @@ export default function SkinTest() {
           const data = await response.json();
           if (data.result) {
             setPreviousTest(data.result);
+            setResult(data.result);
+            if (data.result.gptAnalysis) {
+              setGptAnalysis({
+                content: data.result.gptAnalysis,
+                followUpQuestions: data.result.followUpQuestions || [],
+              });
+              setShowAnalysis(true);
+            }
           }
         }
       } catch (error) {
@@ -120,7 +128,18 @@ export default function SkinTest() {
     };
 
     fetchPreviousTest();
-  }, [navigate]);
+  }, []);
+
+  // 开始新测试的处理函数
+  const handleStartNewTest = () => {
+    setStartNewTest(true);
+    setResult(null);
+    setPreviousTest(null);
+    setAnswers({});
+    setCurrentQuestion(0);
+    setGptAnalysis(null);
+    setShowAnalysis(false);
+  };
 
   const handleAnswer = async (index) => {
     const newAnswers = { ...answers, [currentQuestion]: index };
@@ -285,7 +304,7 @@ export default function SkinTest() {
               查看详细结果
             </button>
             <button
-              onClick={() => setPreviousTest(null)}
+              onClick={handleStartNewTest}
               className="px-4 py-2 text-emerald-700 hover:text-emerald-900"
             >
               重新测试
