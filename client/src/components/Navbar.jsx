@@ -17,13 +17,6 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md shadow-sm z-50">
       <div className="w-full px-4 py-2">
         <div className="flex items-center space-x-4">
-          <Link
-            to="/"
-            className="flex-shrink-0"
-          >
-            <h1 className="text-xl font-bold text-emerald-900">BLISSA</h1>
-          </Link>
-
           <div className="h-6 w-px bg-gray-200"></div>
 
           <div className="flex items-center space-x-2">
