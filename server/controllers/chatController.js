@@ -21,7 +21,7 @@ class ChatController {
         You MUST format your response in exactly two parts, separated by a line containing only "---":
 
         Part 1: Your direct answer to the user's question
-        [Your detailed answer goes here]
+        [Your detailed answer goes here,only answer the question,do not include any other content]
 
         ---
 
