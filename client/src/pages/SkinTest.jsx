@@ -76,9 +76,6 @@ const questions = [
   },
 ];
 
-// 修改 API 调用地址
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-
 export default function SkinTest() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -99,7 +96,7 @@ export default function SkinTest() {
           return;
         }
 
-        const response = await fetch(`${API_BASE_URL}/api/skintest/latest`, {
+        const response = await fetch(`/api/skintest/latest`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -170,7 +167,7 @@ export default function SkinTest() {
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/skintest/submit`, {
+      const response = await fetch(`/api/skintest/submit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -223,7 +220,7 @@ export default function SkinTest() {
         },
       };
 
-      const response = await fetch(`${API_BASE_URL}/api/chat`, {
+      const response = await fetch(`/api/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -252,7 +249,7 @@ export default function SkinTest() {
       setResult(updatedResult);
 
       // 保存更新后的结果
-      const saveResponse = await fetch(`${API_BASE_URL}/api/skintest/update`, {
+      const saveResponse = await fetch(`/api/skintest/update`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
