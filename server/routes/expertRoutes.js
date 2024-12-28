@@ -22,4 +22,11 @@ router.get(
 // 创建预约
 router.post("/appointment", auth, expertController.createAppointment);
 
+// 获取单个预约详情
+router.get(
+  "/appointment/:appointmentId",
+  auth,
+  expertController.getAppointmentById
+);
+
 module.exports = router;

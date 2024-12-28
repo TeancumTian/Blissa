@@ -72,21 +72,54 @@ const ExpertChat = () => {
 
   const initializeWebSocket = () => {
     const token = localStorage.getItem("token");
-    ws.current = new WebSocket(
-      `ws://localhost:3000/ws/expert-chat?token=${token}`
-    );
 
-    ws.current.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === "expert-chat" && data.appointmentId === appointmentId) {
-        setMessages((prev) => [...prev, data.message]);
-      }
-    };
+    if (ws.current) {
+      ws.current.close();
+    }
 
-    ws.current.onerror = (error) => {
-      console.error("WebSocket错误:", error);
-      setError("连接错误，请刷新页面重试");
-    };
+    try {
+      // 使用 vite 代理
+      ws.current = new WebSocket(
+        `ws://localhost:5174/ws/expert-chat?token=${token}`
+      );
+
+      ws.current.onopen = () => {
+        console.log("WebSocket连接成功");
+        setError(""); // 清除之前的错误
+      };
+
+      ws.current.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (
+            data.type === "expert-chat" &&
+            data.appointmentId === appointmentId
+          ) {
+            setMessages((prev) => [...prev, data.message]);
+          }
+        } catch (error) {
+          console.error("解析消息错误:", error);
+        }
+      };
+
+      ws.current.onerror = (error) => {
+        console.error("WebSocket错误:", error);
+        setError("连接错误，请刷新页面重试");
+      };
+
+      ws.current.onclose = () => {
+        console.log("WebSocket连接关闭");
+        // 可以添加重连逻辑
+        setTimeout(() => {
+          if (ws.current?.readyState === WebSocket.CLOSED) {
+            initializeWebSocket();
+          }
+        }, 3000);
+      };
+    } catch (error) {
+      console.error("初始化WebSocket错误:", error);
+      setError("初始化连接失败");
+    }
   };
 
   const handleSendMessage = async () => {

@@ -145,6 +145,47 @@ class ExpertController {
       res.status(500).json({ error: "获取预约列表失败" });
     }
   }
+
+  // 获取单个预约详情
+  async getAppointmentById(req, res) {
+    try {
+      const { appointmentId } = req.params;
+      const userId = req.user._id;
+
+      const appointment = await Appointment.findById(appointmentId)
+        .populate("expertId", "name specialty profileImage")
+        .populate("userId", "name");
+
+      if (!appointment) {
+        return res.status(404).json({ error: "预约不存在" });
+      }
+
+      // 调试日志
+      console.log("预约信息:", {
+        appointment,
+        requestUserId: userId,
+        appointmentUserId: appointment.userId._id,
+        appointmentExpertId: appointment.expertId._id,
+      });
+
+      // 验证用户权限
+      const userIdStr = userId.toString();
+      const appointmentUserIdStr = appointment.userId._id.toString();
+      const appointmentExpertIdStr = appointment.expertId._id.toString();
+
+      if (
+        userIdStr !== appointmentUserIdStr &&
+        userIdStr !== appointmentExpertIdStr
+      ) {
+        return res.status(403).json({ error: "无权访问此预约" });
+      }
+
+      res.json(appointment);
+    } catch (error) {
+      console.error("获取预约详情错误:", error);
+      res.status(500).json({ error: "获取预约详情失败: " + error.message });
+    }
+  }
 }
 
 module.exports = new ExpertController();

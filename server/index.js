@@ -18,6 +18,7 @@ const quoteRoutes = require("./routes/quoteRoutes");
 const initQuotes = require("./init/initQuotes");
 const ExpertChatService = require("./services/expertChatService");
 const expertChatRoutes = require("./routes/expertChatRoutes");
+const WebSocket = require("ws");
 
 // ... 其他代码 ...
 
@@ -240,6 +241,46 @@ mongoose
 
 // 添加专家聊天路由
 app.use("/api/expert-chat", expertChatRoutes);
+
+// 初始化 WebSocket 服务
+const wss = new WebSocket.Server({
+  server,
+  path: "/ws/expert-chat",
+  verifyClient: async (info, callback) => {
+    try {
+      const token = new URL(
+        info.req.url,
+        "http://localhost:3000"
+      ).searchParams.get("token");
+      if (!token) {
+        callback(false, 401, "Unauthorized");
+        return;
+      }
+
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      info.req.userId = decoded.userId;
+      callback(true);
+    } catch (error) {
+      console.error("WebSocket验证错误:", error);
+      callback(false, 401, "Unauthorized");
+    }
+  },
+});
+
+// 创建专家聊天服务
+expertChatService = new ExpertChatService(wss);
+app.set("expertChatService", expertChatService);
+
+// 在服务器启动之前添加错误处理
+wss.on("error", (error) => {
+  console.error("WebSocket服务器错误:", error);
+});
+
+server.on("upgrade", (request, socket, head) => {
+  wss.handleUpgrade(request, socket, head, (ws) => {
+    wss.emit("connection", ws, request);
+  });
+});
 
 // 使用 server 而不是 app 来监听端口
 server.listen(PORT, () => {
