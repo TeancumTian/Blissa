@@ -1,157 +1,137 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import styles from "./Login.module.css";
+import styles from "./Appointment.module.css";
 import Navbar from "../components/Navbar";
+
 const Appointment = () => {
-  const [experts, setExperts] = useState([]);
-  const [selectedExpert, setSelectedExpert] = useState(null);
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectedTime, setSelectedTime] = useState("");
-  const [notes, setNotes] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchExperts();
+    fetchAppointments();
   }, []);
 
-  const fetchExperts = async () => {
+  const fetchAppointments = async () => {
     try {
       const token = localStorage.getItem("token");
-      console.log("开始获取专家列表, token:", token);
-
-      const response = await fetch("/api/experts", {
+      const response = await fetch("/api/experts/appointments", {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
       });
-
-      console.log("专家列表响应状态:", response.status);
-
-      // 尝试获取错误详情
-      const data = await response.json();
-      console.log("���务器响应:", data);
 
       if (!response.ok) {
-        throw new Error(
-          `获取专家列表失败: ${response.status}, ${JSON.stringify(data)}`
-        );
+        throw new Error("获取预约列表失败");
       }
 
-      if (Array.isArray(data) && data.length > 0) {
-        setExperts(data);
-        console.log("成功设置专家数据:", data);
-      } else {
-        console.warn("未找到专家数据或数据为空");
-      }
+      const data = await response.json();
+      setAppointments(data);
     } catch (error) {
-      console.error("获取专家列表失败:", {
-        message: error.message,
-        stack: error.stack,
-      });
-      alert(`获取专家列表失败: ${error.message}`);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("/api/experts/appointment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          expertId: selectedExpert._id,
-          date: selectedDate,
-          timeSlot: selectedTime,
-          notes,
-        }),
-      });
-
-      if (response.ok) {
-        const appointment = await response.json();
-        navigate(`/chat/${appointment._id}`);
-      }
-    } catch (error) {
-      console.error("预约失败:", error);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleNewAppointment = () => {
+    navigate("/experts");
+  };
+
+  const handleChatClick = (appointmentId) => {
+    navigate(`/expert-chat/${appointmentId}`);
+  };
+
+  const getStatusText = (status) => {
+    const statusMap = {
+      pending: "待确认",
+      confirmed: "已确认",
+      completed: "已完成",
+      cancelled: "已取消",
+    };
+    return statusMap[status] || status;
+  };
+
+  const getStatusClass = (status) => {
+    const statusClassMap = {
+      pending: styles.statusPending,
+      confirmed: styles.statusConfirmed,
+      completed: styles.statusCompleted,
+      cancelled: styles.statusCancelled,
+    };
+    return statusClassMap[status] || "";
+  };
+
   return (
     <div className={styles.container}>
-      <div className={styles.card}>
+      <Navbar />
+      <div className={styles.content}>
         <div className={styles.header}>
-          <h1 className={styles.title}>预约专家</h1>
-          <p className={styles.subtitle}>选择您想咨询的专家</p>
+          <h1>我的预约</h1>
+          <button
+            onClick={handleNewAppointment}
+            className={styles.newAppointmentButton}
+          >
+            新预约
+          </button>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className={styles.form}
-        >
-          <select
-            className={styles.input}
-            onChange={(e) => setSelectedExpert(experts[e.target.value])}
-            required
-          >
-            <option value="">选择专家</option>
-            {experts.map((expert, index) => (
-              <option
-                key={expert._id}
-                value={index}
+        {error && <div className={styles.error}>{error}</div>}
+
+        {loading ? (
+          <div className={styles.loading}>加载中...</div>
+        ) : appointments.length === 0 ? (
+          <div className={styles.empty}>
+            <p>暂无预约</p>
+            <button
+              onClick={handleNewAppointment}
+              className={styles.emptyStateButton}
+            >
+              立即预约
+            </button>
+          </div>
+        ) : (
+          <div className={styles.appointmentList}>
+            {appointments.map((appointment) => (
+              <div
+                key={appointment._id}
+                className={styles.appointmentCard}
               >
-                {expert.name} - {expert.specialty}
-              </option>
+                <div className={styles.expertInfo}>
+                  <img
+                    src={
+                      appointment.expertId.profileImage || "/default-avatar.png"
+                    }
+                    alt={appointment.expertId.name}
+                    className={styles.expertImage}
+                  />
+                  <div>
+                    <h3>{appointment.expertId.name}</h3>
+                    <p>{appointment.expertId.specialty}</p>
+                  </div>
+                </div>
+
+                <div className={styles.appointmentInfo}>
+                  <p>日期：{new Date(appointment.date).toLocaleDateString()}</p>
+                  <p>时间：{appointment.timeSlot}</p>
+                  <p className={getStatusClass(appointment.status)}>
+                    状态：{getStatusText(appointment.status)}
+                  </p>
+                </div>
+
+                {appointment.status === "confirmed" && (
+                  <button
+                    onClick={() => handleChatClick(appointment._id)}
+                    className={styles.chatButton}
+                  >
+                    开始对话
+                  </button>
+                )}
+              </div>
             ))}
-          </select>
-
-          <input
-            type="date"
-            className={styles.input}
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            required
-          />
-
-          <select
-            className={styles.input}
-            value={selectedTime}
-            onChange={(e) => setSelectedTime(e.target.value)}
-            required
-          >
-            <option value="">选择时间段</option>
-            <option value="09:00-10:00">09:00-10:00</option>
-            <option value="10:00-11:00">10:00-11:00</option>
-            <option value="11:00-12:00">11:00-12:00</option>
-            <option value="14:00-15:00">14:00-15:00</option>
-            <option value="15:00-16:00">15:00-16:00</option>
-            <option value="16:00-17:00">16:00-17:00</option>
-          </select>
-
-          <textarea
-            className={styles.input}
-            placeholder="注信息..."
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            rows={4}
-          />
-
-          <button
-            type="submit"
-            className={styles.button}
-            disabled={loading}
-          >
-            {loading ? "预约中..." : "确认预约"}
-          </button>
-        </form>
+          </div>
+        )}
       </div>
     </div>
   );

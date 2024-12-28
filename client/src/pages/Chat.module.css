@@ -1,0 +1,12 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.chatWrapper {
+  flex: 1;
+  overflow: hidden;
+  padding: 20px;
+  margin-top: 60px; /* 为导航栏留出空间 */
+}

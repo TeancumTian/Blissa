@@ -7,6 +7,9 @@ function peerProxy(httpServer) {
 
   // Handle the protocol upgrade from HTTP to WebSocket
   httpServer.on("upgrade", (request, socket, head) => {
+    if (request.url.startsWith("/ws/expert-chat")) {
+      return; // 跳过处理 expert-chat 的 WebSocket 连接
+    }
     wss.handleUpgrade(request, socket, head, function done(ws) {
       wss.emit("connection", ws, request);
     });

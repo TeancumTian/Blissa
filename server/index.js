@@ -1,7 +1,8 @@
-//require('dotenv').config();
+require("dotenv").config();
 const cookieParser = require("cookie-parser");
 const bcrypt = require("bcrypt");
 const express = require("express");
+const http = require("http");
 const app = express();
 const DB = require("./database.js");
 const { peerProxy } = require("./peerProxy.js");
@@ -15,6 +16,8 @@ const expertRoutes = require("./routes/expertRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const quoteRoutes = require("./routes/quoteRoutes");
 const initQuotes = require("./init/initQuotes");
+const ExpertChatService = require("./services/expertChatService");
+const expertChatRoutes = require("./routes/expertChatRoutes");
 
 // ... 其他代码 ...
 
@@ -94,7 +97,7 @@ app.post("/api/auth/create", async (req, res) => {
       email: user.email,
     });
   } catch (error) {
-    console.error("用���创建错误:", error);
+    console.error("用户创建错误:", error);
     res.status(500).json({ msg: "服务器错误：" + error.message });
   }
 });
@@ -201,12 +204,8 @@ app.use((err, req, res, next) => {
 //   res.sendFile("index.html", { root: "public" });
 // });
 
-// 启动服务器
-const httpService = app.listen(PORT, () => {
-  console.log(`服务器运行在端口 ${PORT}`);
-});
-// 设置 WebSocket 代理
-peerProxy(httpService);
+// 创建 HTTP 服务器
+const server = http.createServer(app);
 
 // 定义 cookie 名称和设置函数
 function setAuthCookie(res, token) {
@@ -219,3 +218,42 @@ function setAuthCookie(res, token) {
 }
 
 app.use("/api/quotes", quoteRoutes);
+
+// 添加专家路由
+app.use("/api/experts", expertRoutes);
+
+// 确保只创建一个 WebSocket 服务实例
+let expertChatService = null;
+
+// 数据库连接
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => {
+    console.log("MongoDB 连接成功");
+    // 在数据库连接成功后初始化 WebSocket 服务
+    if (!expertChatService) {
+      expertChatService = new ExpertChatService(server);
+      app.set("expertChatService", expertChatService);
+    }
+  })
+  .catch((err) => console.error("MongoDB 连接错误:", err));
+
+// 添加专家聊天路由
+app.use("/api/expert-chat", expertChatRoutes);
+
+// 使用 server 而不是 app 来监听端口
+server.listen(PORT, () => {
+  console.log(`服务器运行在端口 ${PORT}`);
+});
+
+// 设置 WebSocket 代理
+peerProxy(server);
+
+// 优雅关闭
+process.on("SIGTERM", () => {
+  console.log("收到 SIGTERM 信号，准备关闭服务器");
+  server.close(() => {
+    console.log("服务器已关闭");
+    process.exit(0);
+  });
+});

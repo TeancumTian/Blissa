@@ -14,6 +14,9 @@ import Chat from "./pages/Chat";
 import Appointment from "./pages/Appointment";
 import SkinTest from "./pages/SkinTest";
 import About from "./pages/About";
+import ExpertChat from "./pages/ExpertChat";
+import ExpertList from "./pages/ExpertList";
+import ExpertDetail from "./pages/ExpertDetail";
 
 // 添加受保护的路由组件
 const ProtectedRoute = ({ children }) => {
@@ -101,6 +104,30 @@ function App() {
               element={
                 <ProtectedRoute>
                   <About />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/experts"
+              element={
+                <ProtectedRoute>
+                  <ExpertList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/experts/:expertId"
+              element={
+                <ProtectedRoute>
+                  <ExpertDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/expert-chat/:appointmentId"
+              element={
+                <ProtectedRoute>
+                  <ExpertChat />
                 </ProtectedRoute>
               }
             />

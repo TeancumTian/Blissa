@@ -1,62 +1,67 @@
 const Expert = require("../models/Expert");
 const Appointment = require("../models/Appointment");
 const mongoose = require("mongoose");
+const Notification = require("../models/Notification");
 
 class ExpertController {
   // 获取所有专家列表
-  async getAllExperts(req, res) {
+  async getExperts(req, res) {
     try {
-      console.log("开始获取专家列表");
-
-      // 检查数据库连接
-      if (mongoose.connection.readyState !== 1) {
-        console.error("数据库未连接");
-        return res.status(500).json({ error: "数据库连接错误" });
-      }
-
-      // 查询专家列表
-      const experts = await Expert.find({}).lean();
-      console.log("查询到的专家数量:", experts.length);
-
-      if (!experts || experts.length === 0) {
-        console.log("未找到专家数据");
-        return res.json([]);
-      }
-
-      console.log(
-        "成功获取专家列表:",
-        experts.map((e) => ({
-          name: e.name,
-          specialty: e.specialty,
-        }))
-      );
-
+      const experts = await Expert.find({});
       res.json(experts);
     } catch (error) {
-      console.error("获取专家列表错误:", {
-        name: error.name,
-        message: error.message,
-        stack: error.stack,
-      });
-      res.status(500).json({
-        error: "服务器错误",
-        details: error.message,
-      });
+      console.error("获取专家列表错误:", error);
+      res.status(500).json({ error: "获取专家列表失败" });
     }
   }
 
-  // 获取专家可用时间段
+  // 获取单个专家详情
+  async getExpertById(req, res) {
+    try {
+      const { expertId } = req.params;
+      const expert = await Expert.findById(expertId);
+
+      if (!expert) {
+        return res.status(404).json({ error: "专家不存在" });
+      }
+
+      res.json(expert);
+    } catch (error) {
+      console.error("获取专家详情错误:", error);
+      res.status(500).json({ error: "获取专家详情失败" });
+    }
+  }
+
+  // 获取专家可用时间
   async getExpertAvailability(req, res) {
     try {
       const { expertId } = req.params;
+      const { date } = req.query;
+
       const expert = await Expert.findById(expertId);
       if (!expert) {
         return res.status(404).json({ error: "专家不存在" });
       }
-      res.json(expert.availability);
+
+      // 获取已预约的时间段
+      const bookedSlots = await Appointment.find({
+        expertId,
+        date,
+        status: { $ne: "cancelled" },
+      }).select("timeSlot");
+
+      // 过滤掉已预约的时间段
+      const availableSlots = expert.availability.map((day) => ({
+        ...day,
+        slots: day.slots.filter(
+          (slot) => !bookedSlots.some((booked) => booked.timeSlot === slot)
+        ),
+      }));
+
+      res.json(availableSlots);
     } catch (error) {
-      console.error("获取专家时间段错误:", error);
-      res.status(500).json({ error: "服务器错误" });
+      console.error("获取专家可用时间错误:", error);
+      res.status(500).json({ error: "获取专家可用时间失败" });
     }
   }
 
@@ -122,6 +127,22 @@ class ExpertController {
       res.json(appointments);
     } catch (error) {
       res.status(500).json({ error: "服务器错误" });
+    }
+  }
+
+  // 添加获取预约列表的方法
+  async getAppointments(req, res) {
+    try {
+      const userId = req.user._id;
+
+      const appointments = await Appointment.find({ userId })
+        .populate("expertId", "name specialty profileImage")
+        .sort({ date: -1 });
+
+      res.json(appointments);
+    } catch (error) {
+      console.error("获取预约列表错误:", error);
+      res.status(500).json({ error: "获取预约列表失败" });
     }
   }
 }

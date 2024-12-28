@@ -10,20 +10,21 @@ const expertSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    qualification: String,
-    experience: String,
-    description: String,
+    profileImage: {
+      type: String,
+    },
+    description: {
+      type: String,
+    },
     availability: [
       {
-        dayOfWeek: Number,
-        timeSlots: [String],
+        day: String,
+        slots: [String],
       },
     ],
     rating: {
       type: Number,
-      default: 5.0,
-      min: 0,
-      max: 5,
+      default: 0,
     },
   },
   {

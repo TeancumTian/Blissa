@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const messageSchema = new mongoose.Schema({
+const expertMessageSchema = new mongoose.Schema({
   appointmentId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Appointment",
@@ -21,4 +21,4 @@ const messageSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("Message", messageSchema);
+module.exports = mongoose.model("ExpertMessage", expertMessageSchema);
