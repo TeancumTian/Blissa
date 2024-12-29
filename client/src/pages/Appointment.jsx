@@ -15,15 +15,27 @@ const Appointment = () => {
   const fetchAppointments = async () => {
     try {
       const token = localStorage.getItem("token");
-      const userString = localStorage.getItem("user");
-      const user = userString ? JSON.parse(userString) : { role: "user" };
+      if (!token) {
+        throw new Error("未登录");
+      }
+
+      let user = { role: "user" };
+      try {
+        const userStr = localStorage.getItem("user");
+        if (userStr) {
+          user = JSON.parse(userStr);
+        }
+      } catch (e) {
+        console.error("解析用户信息错误:", e);
+      }
+
+      console.log("当前用户角色:", user.role);
 
       const endpoint =
         user.role === "expert"
           ? "/api/experts/appointments"
           : "/api/appointments";
 
-      console.log("当前用户角色:", user.role);
       console.log("使用的API端点:", endpoint);
 
       const response = await fetch(endpoint, {
@@ -39,7 +51,7 @@ const Appointment = () => {
       }
 
       const data = await response.json();
-      setAppointments(data);
+      setAppointments(data || []);
       setLoading(false);
     } catch (error) {
       console.error("获取预约列表错误:", error);
@@ -48,8 +60,21 @@ const Appointment = () => {
     }
   };
 
-  if (loading) return <div className={styles.loading}>加载中...</div>;
-  if (error) return <div className={styles.error}>错误: {error}</div>;
+  if (loading)
+    return (
+      <div className={styles.container}>
+        <Navbar />
+        <div className={styles.loading}>加载中...</div>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className={styles.container}>
+        <Navbar />
+        <div className={styles.error}>错误: {error}</div>
+      </div>
+    );
 
   return (
     <div className={styles.container}>
@@ -80,14 +105,24 @@ const Appointment = () => {
                     {appointment.timeSlot}
                   </h3>
                   <p>专家: {appointment.expertId?.name || "未知专家"}</p>
-                  <p>状态: {appointment.status}</p>
+                  <p>
+                    状态:{" "}
+                    {{
+                      pending: "待确认",
+                      confirmed: "已确认",
+                      cancelled: "已取消",
+                      completed: "已完成",
+                    }[appointment.status] || appointment.status}
+                  </p>
                 </div>
-                <Link
-                  to={`/expert-chat/${appointment._id}`}
-                  className={styles.chatButton}
-                >
-                  进入对话
-                </Link>
+                {appointment.status !== "cancelled" && (
+                  <Link
+                    to={`/expert-chat/${appointment._id}`}
+                    className={styles.chatButton}
+                  >
+                    进入对话
+                  </Link>
+                )}
               </div>
             ))
           )}
