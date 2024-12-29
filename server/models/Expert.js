@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 
 const expertSchema = new mongoose.Schema(
   {
+    _id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     name: {
       type: String,
       required: true,
@@ -10,11 +14,13 @@ const expertSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    profileImage: {
-      type: String,
-    },
     description: {
       type: String,
+      required: true,
+    },
+    rating: {
+      type: Number,
+      default: 5,
     },
     availability: [
       {
@@ -22,9 +28,9 @@ const expertSchema = new mongoose.Schema(
         slots: [String],
       },
     ],
-    rating: {
-      type: Number,
-      default: 0,
+    profileImage: {
+      type: String,
+      default: "default.jpg",
     },
   },
   {

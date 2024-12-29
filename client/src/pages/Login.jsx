@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import styles from "./Login.module.css";
 
 const LoginPage = () => {
@@ -20,35 +20,34 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-
     try {
-      const endpoint = isLogin ? "/api/auth/login" : "/api/auth/create";
-      const response = await fetch(endpoint, {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
-        credentials: "include",
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        console.log("登录成功，token:", data.token);
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-          navigate("/");
-        } else {
-          setError("服务器响应中缺少token");
-        }
-      } else {
-        setError(data.msg || "认证失败");
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "登录失败");
       }
-    } catch (err) {
-      console.error("认证错误:", err);
-      setError(err.message || "服务器错误,请稍后重试");
+
+      const data = await response.json();
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      console.log("登录成功，token:", data.token);
+      console.log("用户信息:", data.user);
+
+      if (data.user.role === "expert") {
+        navigate("/expert-dashboard");
+      } else {
+        navigate("/appointments");
+      }
+    } catch (error) {
+      setError(error.message);
     }
   };
 
@@ -104,6 +103,10 @@ const LoginPage = () => {
             >
               {isLogin ? "登录" : "注册"}
             </button>
+            <div className={styles.links}>
+              <Link to="/register">普通用户注册</Link>
+              <Link to="/expert-register">成为专家</Link>
+            </div>
           </form>
           <p className={styles.signupText}>
             {isLogin ? "还没有账号?" : "已有账号?"}{" "}

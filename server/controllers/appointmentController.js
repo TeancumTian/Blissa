@@ -1,37 +1,70 @@
 const Appointment = require("../models/Appointment");
-const { chatService } = require("../index");
 
 class AppointmentController {
-  // ... 其他方法 ...
+  // 获取用户的所有预约
+  async getUserAppointments(req, res) {
+    try {
+      const userId = req.user._id;
+      console.log("获取用户预约:", userId);
 
-  async startChat(req, res) {
+      const appointments = await Appointment.find({ userId })
+        .populate("expertId", "name specialty")
+        .sort({ date: -1 });
+
+      console.log("找到预约:", appointments.length);
+      res.json(appointments);
+    } catch (error) {
+      console.error("获取用户预约错误:", error);
+      res.status(500).json({ error: "获取预约列表失败" });
+    }
+  }
+
+  // 获取单个预约详情
+  async getAppointmentById(req, res) {
     try {
       const { appointmentId } = req.params;
       const userId = req.user._id;
 
-      const appointment = await Appointment.findById(appointmentId).populate(
-        "expertId",
-        "name"
-      );
+      const appointment = await Appointment.findOne({
+        _id: appointmentId,
+        userId,
+      }).populate("expertId", "name specialty");
 
       if (!appointment) {
         return res.status(404).json({ error: "预约不存在" });
       }
 
-      // 验证用户是否是预约的参与者
-      if (appointment.userId.toString() !== userId.toString()) {
-        return res.status(403).json({ error: "无权访问此预约的聊天" });
-      }
+      res.json(appointment);
+    } catch (error) {
+      console.error("获取预约详情错误:", error);
+      res.status(500).json({ error: "获取预约详情失败" });
+    }
+  }
 
-      // 通知专家有新的聊天请求
-      chatService.sendSystemNotification(
-        appointment.expertId._id,
-        `用户 ${req.user.name} 发起了聊天`
+  // 取消预约
+  async cancelAppointment(req, res) {
+    try {
+      const { appointmentId } = req.params;
+      const userId = req.user._id;
+
+      const appointment = await Appointment.findOneAndUpdate(
+        {
+          _id: appointmentId,
+          userId,
+          status: { $ne: "cancelled" }, // 只能取消未取消的预约
+        },
+        { status: "cancelled" },
+        { new: true }
       );
 
-      res.json({ success: true });
+      if (!appointment) {
+        return res.status(404).json({ error: "预约不存在或已取消" });
+      }
+
+      res.json(appointment);
     } catch (error) {
-      res.status(500).json({ error: "启动聊天失败" });
+      console.error("取消预约错误:", error);
+      res.status(500).json({ error: "取消预约失败" });
     }
   }
 }

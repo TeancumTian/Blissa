@@ -11,11 +11,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    name: String,
+    name: {
+      type: String,
+      required: true,
+    },
     avatar: String,
     role: {
       type: String,
-      enum: ["user", "expert", "admin"],
+      enum: ["user", "expert"],
       default: "user",
     },
     skinTestResults: [

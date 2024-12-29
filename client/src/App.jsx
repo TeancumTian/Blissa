@@ -17,6 +17,8 @@ import About from "./pages/About";
 import ExpertChat from "./pages/ExpertChat";
 import ExpertList from "./pages/ExpertList";
 import ExpertDetail from "./pages/ExpertDetail";
+import ExpertDashboard from "./pages/ExpertDashboard";
+import ExpertRegister from "./pages/ExpertRegister";
 
 // 添加受保护的路由组件
 const ProtectedRoute = ({ children }) => {
@@ -130,6 +132,14 @@ function App() {
                   <ExpertChat />
                 </ProtectedRoute>
               }
+            />
+            <Route
+              path="/expert-dashboard"
+              element={<ExpertDashboard />}
+            />
+            <Route
+              path="/expert-register"
+              element={<ExpertRegister />}
             />
           </Routes>
         </div>

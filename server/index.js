@@ -19,6 +19,8 @@ const initQuotes = require("./init/initQuotes");
 const ExpertChatService = require("./services/expertChatService");
 const expertChatRoutes = require("./routes/expertChatRoutes");
 const WebSocket = require("ws");
+const authRoutes = require("./routes/authRoutes");
+const appointmentRoutes = require("./routes/appointmentRoutes");
 
 // ... 其他代码 ...
 
@@ -244,27 +246,73 @@ app.use("/api/expert-chat", expertChatRoutes);
 
 // 初始化 WebSocket 服务
 const wss = new WebSocket.Server({
-  server,
-  path: "/ws/expert-chat",
-  verifyClient: async (info, callback) => {
+  noServer: true, // 重要：让我们手动处理升级
+  verifyClient: false, // 我们将在 upgrade 事件中处理验证
+});
+
+// WebSocket 连接处理
+wss.on("connection", (ws, req) => {
+  console.log("新的WebSocket连接已建立, userId:", req.userId);
+
+  ws.isAlive = true;
+
+  ws.on("pong", () => {
+    ws.isAlive = true;
+  });
+
+  ws.on("error", (error) => {
+    console.error("WebSocket连接错误:", error);
+  });
+
+  ws.on("close", () => {
+    console.log("WebSocket连接已关闭");
+  });
+});
+
+// 心跳检测
+const interval = setInterval(() => {
+  wss.clients.forEach((ws) => {
+    if (ws.isAlive === false) {
+      return ws.terminate();
+    }
+    ws.isAlive = false;
+    ws.ping();
+  });
+}, 30000);
+
+wss.on("close", () => {
+  clearInterval(interval);
+});
+
+// 处理 WebSocket 升级请求
+server.on("upgrade", async (request, socket, head) => {
+  const pathname = new URL(request.url, "http://localhost:3000").pathname;
+
+  if (pathname === "/ws/expert-chat") {
     try {
       const token = new URL(
-        info.req.url,
+        request.url,
         "http://localhost:3000"
       ).searchParams.get("token");
+
       if (!token) {
-        callback(false, 401, "Unauthorized");
+        socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
+        socket.destroy();
         return;
       }
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      info.req.userId = decoded.userId;
-      callback(true);
+      request.userId = decoded.userId;
+
+      wss.handleUpgrade(request, socket, head, (ws) => {
+        wss.emit("connection", ws, request);
+      });
     } catch (error) {
       console.error("WebSocket验证错误:", error);
-      callback(false, 401, "Unauthorized");
+      socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
+      socket.destroy();
     }
-  },
+  }
 });
 
 // 创建专家聊天服务
@@ -274,12 +322,6 @@ app.set("expertChatService", expertChatService);
 // 在服务器启动之前添加错误处理
 wss.on("error", (error) => {
   console.error("WebSocket服务器错误:", error);
-});
-
-server.on("upgrade", (request, socket, head) => {
-  wss.handleUpgrade(request, socket, head, (ws) => {
-    wss.emit("connection", ws, request);
-  });
 });
 
 // 使用 server 而不是 app 来监听端口
@@ -298,3 +340,7 @@ process.on("SIGTERM", () => {
     process.exit(0);
   });
 });
+// 路由配置
+app.use("/api/auth", authRoutes);
+app.use("/api/experts", expertRoutes);
+app.use("/api/appointments", appointmentRoutes);

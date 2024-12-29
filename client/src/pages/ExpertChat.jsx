@@ -75,51 +75,73 @@ const ExpertChat = () => {
 
     if (ws.current) {
       ws.current.close();
+      ws.current = null;
     }
 
-    try {
-      // 使用 vite 代理
-      ws.current = new WebSocket(
-        `ws://localhost:5174/ws/expert-chat?token=${token}`
-      );
+    const maxRetries = 3;
+    let retryCount = 0;
 
-      ws.current.onopen = () => {
-        console.log("WebSocket连接成功");
-        setError(""); // 清除之前的错误
-      };
+    const connect = () => {
+      try {
+        // 使用相对路径，但保持在 ws 协议
+        const wsProtocol =
+          window.location.protocol === "https:" ? "wss:" : "ws:";
+        const wsHost = window.location.hostname + ":" + window.location.port;
+        const wsUrl = `${wsProtocol}//${wsHost}/ws/expert-chat?token=${token}`;
 
-      ws.current.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (
-            data.type === "expert-chat" &&
-            data.appointmentId === appointmentId
-          ) {
-            setMessages((prev) => [...prev, data.message]);
+        console.log("正在连接WebSocket:", wsUrl);
+
+        ws.current = new WebSocket(wsUrl);
+
+        ws.current.onopen = () => {
+          console.log("WebSocket连接成功");
+          setError("");
+          retryCount = 0; // 重置重试计数
+        };
+
+        ws.current.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            console.log("收到消息:", data);
+            if (
+              data.type === "expert-chat" &&
+              data.appointmentId === appointmentId
+            ) {
+              setMessages((prev) => [...prev, data.message]);
+            }
+          } catch (error) {
+            console.error("解析消息错误:", error);
           }
-        } catch (error) {
-          console.error("解析消息错误:", error);
-        }
-      };
+        };
 
-      ws.current.onerror = (error) => {
-        console.error("WebSocket错误:", error);
-        setError("连接错误，请刷新页面重试");
-      };
+        ws.current.onerror = (error) => {
+          console.error("WebSocket错误:", error);
+        };
 
-      ws.current.onclose = () => {
-        console.log("WebSocket连接关闭");
-        // 可以添加重连逻辑
-        setTimeout(() => {
-          if (ws.current?.readyState === WebSocket.CLOSED) {
-            initializeWebSocket();
+        ws.current.onclose = (event) => {
+          console.log(
+            "WebSocket连接关闭, code:",
+            event.code,
+            "原因:",
+            event.reason
+          );
+
+          if (!ws.current?.manualClose && retryCount < maxRetries) {
+            retryCount++;
+            console.log(`尝试重新连接 (${retryCount}/${maxRetries})...`);
+            setTimeout(connect, 3000);
+          } else if (retryCount >= maxRetries) {
+            setError("连接失败，请刷新页面重试");
+            console.log("达到最大重试次数");
           }
-        }, 3000);
-      };
-    } catch (error) {
-      console.error("初始化WebSocket错误:", error);
-      setError("初始化连接失败");
-    }
+        };
+      } catch (error) {
+        console.error("初始化WebSocket错误:", error);
+        setError("初始化连接失败");
+      }
+    };
+
+    connect();
   };
 
   const handleSendMessage = async () => {
@@ -127,6 +149,23 @@ const ExpertChat = () => {
 
     try {
       const token = localStorage.getItem("token");
+      const currentUser = appointment?.userId; // 获取当前用户ID
+
+      // 创建新消息对象
+      const newMessage = {
+        content: input.trim(),
+        senderId: currentUser,
+        appointmentId,
+        timestamp: new Date().toISOString(),
+      };
+
+      // 立即添加消息到界面
+      setMessages((prev) => [...prev, newMessage]);
+
+      // 清空输入框
+      setInput("");
+
+      // 发送消息到服务器
       const response = await fetch("/api/expert-chat/send", {
         method: "POST",
         headers: {
@@ -135,7 +174,7 @@ const ExpertChat = () => {
         },
         body: JSON.stringify({
           appointmentId,
-          content: input,
+          content: newMessage.content,
         }),
       });
 
@@ -143,11 +182,53 @@ const ExpertChat = () => {
         throw new Error("发送消息失败");
       }
 
-      setInput("");
+      // 获取服务器返回的消息（包含完整的消息信息）
+      const savedMessage = await response.json();
+
+      // 用服务器返回的消息更新本地消息
+      setMessages((prev) =>
+        prev.map((msg) => (msg === newMessage ? savedMessage : msg))
+      );
     } catch (error) {
+      console.error("发送消息错误:", error);
       setError(error.message);
+      // 如果发送失败，移除本地添加的消息
+      setMessages((prev) => prev.filter((msg) => msg.content !== input));
     }
   };
+
+  // 添加自动滚动到最新消息
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
+  // 添加键盘事件处理
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSendMessage();
+      }
+    };
+
+    document.addEventListener("keypress", handleKeyPress);
+    return () => {
+      document.removeEventListener("keypress", handleKeyPress);
+    };
+  }, [input]);
+
+  // 组件卸载时清理
+  useEffect(() => {
+    return () => {
+      if (ws.current) {
+        ws.current.manualClose = true;
+        ws.current.close();
+        ws.current = null;
+      }
+    };
+  }, []);
 
   return (
     <div className={styles.container}>
