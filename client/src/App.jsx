@@ -19,6 +19,7 @@ import ExpertList from "./pages/ExpertList";
 import ExpertDetail from "./pages/ExpertDetail";
 import ExpertDashboard from "./pages/ExpertDashboard";
 import ExpertRegister from "./pages/ExpertRegister";
+import LandingPage from "./pages/LandingPage";
 
 // 添加受保护的路由组件
 const ProtectedRoute = ({ children }) => {
@@ -44,9 +45,15 @@ function App() {
       <ErrorBoundary>
         <div>
           <Routes>
-            {/* 将根路径重定向到home */}
+            {/* 添加 Landing Page 作为根路由 */}
             <Route
               path="/"
+              element={<LandingPage />}
+            />
+
+            {/* 将原来的主页移到 /home */}
+            <Route
+              path="/home"
               element={
                 <ProtectedRoute>
                   <Home />
