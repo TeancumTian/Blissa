@@ -1,24 +1,14 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styles from "./Login.module.css";
 
-const LoginPage = () => {
-  const navigate = useNavigate();
-  const [isLogin, setIsLogin] = useState(true);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.id]: e.target.value,
-    });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const response = await fetch("/api/auth/login", {
@@ -26,105 +16,72 @@ const LoginPage = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ email, password }),
+        credentials: "include",
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "登录失败");
+        throw new Error(data.msg || "Login failed");
       }
 
-      const data = await response.json();
+      // 保存用户信息到 localStorage
       localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("userId", data.id);
+      localStorage.setItem("userEmail", data.email);
+      localStorage.setItem("userRole", data.role || "user"); // 确保设置默认角色
 
-      console.log("登录成功，token:", data.token);
-      console.log("用户信息:", data.user);
-
-      if (data.user.role === "expert") {
+      // 根据用户角色导航到不同页面
+      if (data.role === "expert") {
         navigate("/expert-dashboard");
       } else {
-        navigate("/appointments");
+        navigate("/home");
       }
-    } catch (error) {
-      setError(error.message);
+    } catch (err) {
+      setError(err.message);
+      console.error("Login error:", err);
     }
   };
 
   return (
     <div className={styles.container}>
-      <div className={styles.card}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>BLISSA</h1>
-          <p className={styles.subtitle}>Simplify Skincare</p>
-        </div>
-        <div className={styles.content}>
-          <form
-            className={styles.form}
-            onSubmit={handleSubmit}
+      <div className={styles.loginBox}>
+        <h1>Blissa</h1>
+        <h2>Simplify Skincare</h2>
+        {error && <div className={styles.error}>{error}</div>}
+        <form onSubmit={handleLogin}>
+          <div className={styles.inputGroup}>
+            <label>Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className={styles.inputGroup}>
+            <label>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            className={styles.loginButton}
           >
-            {error && <div className={styles.error}>{error}</div>}
-            <div className={styles.inputGroup}>
-              <label
-                htmlFor="email"
-                className={styles.label}
-              >
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                placeholder="your@email.com"
-                className={styles.input}
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className={styles.inputGroup}>
-              <label
-                htmlFor="password"
-                className={styles.label}
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                className={styles.input}
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className={styles.loginButton}
-            >
-              {isLogin ? "登录" : "注册"}
-            </button>
-            <div className={styles.links}>
-              <Link to="/register">普通用户注册</Link>
-              <Link to="/expert-register">成为专家</Link>
-            </div>
-          </form>
-          <p className={styles.signupText}>
-            {isLogin ? "还没有账号?" : "已有账号?"}{" "}
-            <a
-              href="#"
-              className={styles.link}
-              onClick={(e) => {
-                e.preventDefault();
-                setIsLogin(!isLogin);
-              }}
-            >
-              {isLogin ? "注册" : "登录"}
-            </a>
-          </p>
-        </div>
+            Login
+          </button>
+        </form>
+        <p className={styles.registerLink}>
+          <a href="/register">Don't have an account? Register</a>
+        </p>
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default Login;

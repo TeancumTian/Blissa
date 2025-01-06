@@ -1,3 +1,8 @@
+/**
+ * @fileoverview 主应用程序组件，处理路由和身份验证
+ * @module App
+ */
+
 import React from "react";
 import {
   BrowserRouter as Router,
@@ -5,6 +10,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import { UserProvider } from "./context/UserContext";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import LiveKitMeeting from "./pages/LiveKitMeeting";
@@ -19,39 +25,47 @@ import ExpertList from "./pages/ExpertList";
 import ExpertDetail from "./pages/ExpertDetail";
 import ExpertDashboard from "./pages/ExpertDashboard";
 import ExpertRegister from "./pages/ExpertRegister";
-import LandingPage from "./pages/LandingPage";
 
-// 添加受保护的路由组件
-const ProtectedRoute = ({ children }) => {
-  // 检查用户是否已登录（根据您的认证方式来实现）
-  const isAuthenticated = localStorage.getItem("token"); // 或其他验证方式
+/**
+ * @typedef {Object} ProtectedRouteProps
+ * @property {React.ReactNode} children - 需要保护的子组件
+ * @property {string} [requiredRole] - 访问路由所需的用户角色
+ */
 
-  if (!isAuthenticated) {
-    // 未登录时重定向到登录页
-    return (
-      <Navigate
-        to="/login"
-        replace
-      />
-    );
+/**
+ * 受保护的路由组件，用于处理身份验证和授权
+ * @param {ProtectedRouteProps} props - 组件属性
+ * @returns {React.ReactElement} 渲染的组件
+ */
+const ProtectedRoute = ({ children, requiredRole }) => {
+  const token = localStorage.getItem("token");
+  const userRole = localStorage.getItem("userRole");
+
+  if (!token) {
+    return <Navigate to="/login" />;
+  }
+
+  if (requiredRole && userRole !== requiredRole) {
+    return <Navigate to="/home" />;
   }
 
   return children;
 };
 
-function App() {
+/**
+ * 主应用程序组件
+ * @returns {React.ReactElement} 渲染的应用程序
+ */
+const App = () => {
   return (
-    <Router>
-      <ErrorBoundary>
-        <div>
+    <ErrorBoundary>
+      <UserProvider>
+        <Router>
           <Routes>
-            {/* 添加 Landing Page 作为根路由 */}
             <Route
-              path="/"
-              element={<LandingPage />}
+              path="/login"
+              element={<Login />}
             />
-
-            {/* 将原来的主页移到 /home */}
             <Route
               path="/home"
               element={
@@ -60,14 +74,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
-            {/* 登录页面不需要保护 */}
-            <Route
-              path="/login"
-              element={<Login />}
-            />
-
-            {/* 其他需要保护的路由 */}
             <Route
               path="/meeting/:roomId?"
               element={
@@ -149,10 +155,10 @@ function App() {
               element={<ExpertRegister />}
             />
           </Routes>
-        </div>
-      </ErrorBoundary>
-    </Router>
+        </Router>
+      </UserProvider>
+    </ErrorBoundary>
   );
-}
+};
 
 export default App;
