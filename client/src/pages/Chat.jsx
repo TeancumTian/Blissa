@@ -105,7 +105,7 @@ const Chat = () => {
       >
         <div className={styles.header}>
           <h1 className={styles.title}>BLISSA AI</h1>
-          <p className={styles.subtitle}>您的智能护肤助手</p>
+          <p className={styles.subtitle}>Your Intelligent Skincare Assistant</p>
           <Navbar />
         </div>
 
@@ -124,7 +124,9 @@ const Chat = () => {
                   msg.followUpQuestions &&
                   msg.followUpQuestions.length > 0 && (
                     <div className={styles.followUp}>
-                      <p className={styles.followUpTitle}>您可能想问：</p>
+                      <p className={styles.followUpTitle}>
+                        You might also want to ask：
+                      </p>
                       <div className={styles.followUpQuestions}>
                         {msg.followUpQuestions.map((question, i) => (
                           <button

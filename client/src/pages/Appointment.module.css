@@ -6,97 +6,38 @@
 
 .content {
   flex: 1;
-  padding: 20px;
-  max-width: 1200px;
+  padding: var(--spacing-lg);
   margin: 64px auto 0;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.newAppointmentButton {
-  padding: 10px 20px;
-  background-color: #4fd1c5;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.appointmentList {
-  display: grid;
-  gap: 20px;
+  max-width: 1200px;
 }
 
 .appointmentCard {
-  background: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: var(--spacing-md);
 }
 
-.expertInfo {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.expertImage {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.appointmentInfo {
-  flex: 1;
-  margin: 0 20px;
-}
-
-.chatButton {
-  padding: 8px 16px;
-  background-color: #4fd1c5;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+/* 状态颜色 */
+.status {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-weight: 500;
 }
 
 .statusPending {
   color: #f6ad55;
 }
-
 .statusConfirmed {
-  color: #4fd1c5;
+  color: var(--primary);
 }
-
 .statusCompleted {
   color: #68d391;
 }
-
 .statusCancelled {
   color: #fc8181;
-}
-
-.empty {
-  text-align: center;
-  padding: 40px;
-}
-
-.emptyStateButton {
-  margin-top: 16px;
-  padding: 10px 20px;
-  background-color: #4fd1c5;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
 }

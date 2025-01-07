@@ -21,16 +21,47 @@ const expertSchema = new mongoose.Schema(
     rating: {
       type: Number,
       default: 5,
+      min: 0,
+      max: 5,
+    },
+    reviewCount: {
+      type: Number,
+      default: 0,
     },
     availability: [
       {
-        day: String,
+        day: {
+          type: String,
+          enum: [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday",
+          ],
+        },
         slots: [String],
+        isAvailable: {
+          type: Boolean,
+          default: true,
+        },
       },
     ],
     profileImage: {
       type: String,
       default: "default.jpg",
+    },
+    languages: [
+      {
+        type: String,
+        enum: ["en", "zh"],
+      },
+    ],
+    price: {
+      type: Number,
+      required: true,
     },
   },
   {

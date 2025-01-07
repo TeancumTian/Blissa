@@ -50,14 +50,14 @@ class ChatController {
 
         ---
 
-        2. After your detailed response, end with exactly 2-3 numbered follow-up questions that users might want to ask
+        2. After your detailed response, end with exactly 2-3 numbered follow-up questions that users might want to ask related to the main topic
         [List your follow-up questions here, one per line, each ending with a question mark]
         Format follow-up questions as:
             1. [Question 1]?
             2. [Question 2]?
             3. [Question 3]?
 
-        Remember: Always include the separator "---" on its own line between your answer and questions.
+        Remember: Always include the separator "---" on its own line between your answer and questions.Keep your main response informative and engaging, but make sure the follow-up questions are clearly separated at the end.
       `;
 
       const messages = [
@@ -71,7 +71,13 @@ class ChatController {
           content: `Based on the skin test results:
             Summary: ${skinTestResult.summary}
             Skin Type: ${skinTestResult.skinType}
-            Please provide personalized skincare advice and product recommendations.`,
+            Please provide personalized skincare advice and product recommendations.
+                    Please provide:
+        1. A detailed explanation of this skin type
+        2. Specific skincare recommendations
+        3. Product types that would be beneficial
+        4. Daily skincare routine suggestions
+        5. Things to avoid for this skin type`,
         });
       }
 
@@ -140,9 +146,9 @@ class ChatController {
 
   generateDefaultQuestions() {
     return [
-      "您想了解更多关于护肤步骤的信息吗？",
-      "您是否有特定的肌肤问题需要解决？",
-      "您想知道如何选择适合的护肤品吗？",
+      "How can I reduce acne and prevent future breakouts?",
+      "What are some effective home remedies for acne?",
+      "What are the best skincare products for acne-prone skin?",
     ];
   }
 }

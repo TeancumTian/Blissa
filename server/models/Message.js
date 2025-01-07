@@ -11,9 +11,18 @@ const messageSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+  messageType: {
+    type: String,
+    enum: ["text", "image", "system"],
+    default: "text",
+  },
   content: {
     type: String,
     required: true,
+  },
+  isRead: {
+    type: Boolean,
+    default: false,
   },
   timestamp: {
     type: Date,

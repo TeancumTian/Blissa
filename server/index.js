@@ -52,21 +52,42 @@ mongoose.connection.once("open", () => {
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.static("public"));
+
+// CORS配置
 app.use(
   cors({
-    origin: FRONTEND_URL,
+    origin: true, // 允许所有来源
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+      "Origin",
+    ],
     credentials: true,
+    maxAge: 86400, // 预检请求缓存24小时
   })
 );
+
+// 添加移动应用所需的响应头
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Expose-Headers", "Authorization");
+  next();
+});
+
 app.set("trust proxy", true);
 
 // 调试中间件
 app.use((req, res, next) => {
-  console.log("收到请求:", {
+  console.log("Request received:", {
     method: req.method,
     path: req.path,
     headers: req.headers,
     body: req.body,
+    origin: req.get("origin"),
+    userAgent: req.get("user-agent"),
   });
   next();
 });
@@ -191,9 +212,20 @@ app.use("/api/livekit", liveKitRoutes);
 app.use("/api/experts", expertRoutes);
 app.use("/api/messages", messageRoutes);
 
+// 移动应用测试端点
+app.get("/api/mobile/test", (req, res) => {
+  res.json({
+    status: "success",
+    message: "Mobile API is working",
+    timestamp: new Date().toISOString(),
+    headers: req.headers,
+    userAgent: req.get("user-agent"),
+  });
+});
+
 // 测试路由
 app.get("/api/test", (req, res) => {
-  res.json({ message: "后端服务器正常运行" });
+  res.json({ message: "Backend server is running" });
 });
 
 // 错误处理中间件
@@ -213,9 +245,9 @@ const server = http.createServer(app);
 // 定义 cookie 名称和设置函数
 function setAuthCookie(res, token) {
   res.cookie(authCookieName, token, {
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     httpOnly: true,
-    sameSite: "strict",
+    sameSite: "none",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7天
   });
 }
@@ -325,8 +357,8 @@ wss.on("error", (error) => {
 });
 
 // 使用 server 而不是 app 来监听端口
-server.listen(PORT, () => {
-  console.log(`服务器运行在端口 ${PORT}`);
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
 // 设置 WebSocket 代理
@@ -344,3 +376,30 @@ process.on("SIGTERM", () => {
 app.use("/api/auth", authRoutes);
 app.use("/api/experts", expertRoutes);
 app.use("/api/appointments", appointmentRoutes);
+
+// 验证认证中间件
+const authenticateToken = async (req, res, next) => {
+  try {
+    // 首先检查 Authorization header
+    const authHeader = req.headers["authorization"];
+    let token = authHeader && authHeader.split(" ")[1];
+
+    // 如果没有 Authorization header，则检查 cookie
+    if (!token) {
+      token = req.cookies[authCookieName];
+    }
+
+    if (!token) {
+      return res
+        .status(401)
+        .json({ message: "No authentication token provided" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "dev-secret");
+    req.user = decoded;
+    next();
+  } catch (error) {
+    console.error("Authentication error:", error);
+    return res.status(403).json({ message: "Invalid or expired token" });
+  }
+};

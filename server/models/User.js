@@ -13,7 +13,6 @@ const userSchema = new mongoose.Schema(
     },
     name: {
       type: String,
-      required: true,
     },
     avatar: String,
     role: {
@@ -33,6 +32,23 @@ const userSchema = new mongoose.Schema(
         ref: "Appointment",
       },
     ],
+    phoneNumber: {
+      type: String,
+    },
+    preferences: {
+      language: {
+        type: String,
+        enum: ["en", "zh"],
+        default: "en",
+      },
+      notifications: {
+        email: { type: Boolean, default: true },
+        push: { type: Boolean, default: true },
+      },
+    },
+    lastLogin: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
