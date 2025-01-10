@@ -177,42 +177,44 @@ app.delete("/api/auth/logout", (_req, res) => {
   res.status(204).end();
 });
 
+// 先配置不需要认证的路由
+app.use("/api/auth", authRoutes);
+app.use("/api/test", (req, res) => {
+  res.json({ message: "Backend server is running" });
+});
+
 // 安全 API 路由
 const secureApiRouter = express.Router();
 app.use("/api", secureApiRouter);
 
 secureApiRouter.use(async (req, res, next) => {
-  const authToken = req.cookies[authCookieName];
-  const user = await DB.getUserByToken(authToken);
-  if (user) {
+  // 跳过认证路由的认证检查
+  if (req.path.startsWith("/auth/")) {
+    return next();
+  }
+
+  const authToken =
+    req.cookies[authCookieName] || req.headers.authorization?.split(" ")[1];
+  if (!authToken) {
+    return res.status(401).json({ msg: "No token provided" });
+  }
+
+  try {
+    const decoded = jwt.verify(authToken, process.env.JWT_SECRET);
+    req.user = decoded;
     next();
-  } else {
-    res.status(401).send({ msg: "Unauthorized" });
+  } catch (error) {
+    res.status(401).json({ msg: "Invalid or expired token" });
   }
 });
 
-// 获取分数
-secureApiRouter.get("/scores", async (req, res) => {
-  const scores = await DB.getHighScores();
-  res.send(scores);
-});
-
-// 提交分数
-secureApiRouter.post("/score", async (req, res) => {
-  const score = { ...req.body, ip: req.ip };
-  await DB.addScore(score);
-  const scores = await DB.getHighScores();
-  res.send(scores);
-});
-
-// API 路由配置
-app.use("/api/auth", authRoutes);
-app.use("/api/skintest", skinTestRoutes);
-app.use("/api/chat", chatRoutes);
-app.use("/api/livekit", liveKitRoutes);
-app.use("/api/experts", expertRoutes);
-app.use("/api/messages", messageRoutes);
-app.use("/api/appointments", appointmentRoutes);
+// 其他需要认证的路由
+secureApiRouter.use("/skintest", skinTestRoutes);
+secureApiRouter.use("/chat", chatRoutes);
+secureApiRouter.use("/livekit", liveKitRoutes);
+secureApiRouter.use("/experts", expertRoutes);
+secureApiRouter.use("/messages", messageRoutes);
+secureApiRouter.use("/appointments", appointmentRoutes);
 
 // 移动应用测试端点
 app.get("/api/mobile/test", (req, res) => {
