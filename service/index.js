@@ -32,13 +32,10 @@ const FRONTEND_URL = "http://localhost:5173"; // 统一前端端口
 
 // 添加MongoDB连接
 mongoose
-  .connect(
-    "mongodb+srv://BlissaDB:ERcf3HsZ8JGbcRgg@blissa.mcauor7.mongodb.net/blissa",
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    }
-  )
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log("MongoDB连接成功"))
   .catch((err) => console.error("MongoDB连接失败:", err));
 

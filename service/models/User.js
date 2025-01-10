@@ -5,7 +5,8 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
-      unique: true,
+      lowercase: true,
+      trim: true,
     },
     password: {
       type: String,
@@ -55,4 +56,28 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("User", userSchema);
+userSchema.index(
+  { email: 1 },
+  {
+    unique: true,
+    collation: { locale: "en", strength: 2 },
+  }
+);
+
+userSchema.pre("save", function (next) {
+  if (this.email) {
+    this.email = this.email.toLowerCase().trim();
+  }
+  next();
+});
+
+userSchema.pre("findOne", function (next) {
+  if (this._conditions.email) {
+    this._conditions.email = this._conditions.email.toLowerCase().trim();
+  }
+  next();
+});
+
+const User = mongoose.model("users", userSchema);
+
+module.exports = User;
