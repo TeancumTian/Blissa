@@ -206,11 +206,13 @@ secureApiRouter.post("/score", async (req, res) => {
 });
 
 // API 路由配置
+app.use("/api/auth", authRoutes);
 app.use("/api/skintest", skinTestRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/livekit", liveKitRoutes);
 app.use("/api/experts", expertRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/appointments", appointmentRoutes);
 
 // 移动应用测试端点
 app.get("/api/mobile/test", (req, res) => {
