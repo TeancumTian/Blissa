@@ -8,9 +8,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "bootstrap": "^5.3.3",
+    "framer-motion": "^11.17.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-intersection-observer": "^9.14.1",
     "react-router-dom": "^7.0.2"
   },
   "devDependencies": {

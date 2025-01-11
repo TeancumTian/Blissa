@@ -1,154 +1,379 @@
 .container {
   min-height: 100vh;
-  background-color: #1e1e1e;
+  background-color: #1c1c1c;
   color: white;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
-.header {
-  padding: 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.header,
+.footer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  text-align: left;
 }
 
 .logo {
-  height: 40px;
+  height: 50px;
 }
 
 .hero {
   text-align: center;
-  padding: 4rem 2rem;
+  margin-bottom: 64px;
+  padding: 0 16px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 64px 0;
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
 }
 
 .hero h1 {
-  font-size: 3rem;
-  margin-bottom: 1.5rem;
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 16px;
 }
 
 .subtitle {
-  max-width: 800px;
-  margin: 0 auto 2rem;
-  color: rgba(255, 255, 255, 0.8);
-  line-height: 1.6;
+  color: #a0a0a0;
+  max-width: 768px;
+  margin: 0 auto 32px;
+  font-size: 16px;
 }
 
 .downloadButton {
   background-color: #ffd7c9;
-  color: #1e1e1e;
+  color: black;
+  padding: 12px 24px;
   border: none;
-  padding: 1rem 2rem;
-  border-radius: 8px;
-  font-weight: 600;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 32px;
+  width: fit-content;
+  align-self: center;
+  min-width: 150px;
+  max-width: 200px;
 }
 
 .downloadButton:hover {
-  background-color: #ffe4d9;
+  background-color: #ffc5b0;
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
 }
 
 .appPreview {
-  margin-top: 3rem;
   position: relative;
+  margin-top: 48px;
+  margin-bottom: 64px;
+}
+
+.appPreview::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 600px;
+  height: 300px;
+  background-color: #b4e7e0;
+  border-radius: 100%;
+  opacity: 0.2;
+  filter: blur(40px);
 }
 
 .appPreview img {
-  max-width: 100%;
+  width: 100%;
+  max-width: 500px;
   height: auto;
+  position: relative;
+  margin: 0 auto;
+  display: block;
 }
 
 .features {
-  padding: 4rem 2rem;
-  background: linear-gradient(to bottom, #b4e7e3, #ffd7c9);
-  border-radius: 40px 40px 0 0;
+  max-width: 1200px;
+  margin: 0 auto 64px;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 64px 0;
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.chatPreviewContainer {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 32px;
+  height: fit-content;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.chatPreviewBackground {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.5;
+  z-index: 1;
+}
+
+.chatPreview {
+  width: 100%;
+  max-width: 500px;
+  object-fit: cover;
+  border-radius: 12px;
+  position: relative;
+  z-index: 2;
 }
 
 .featuresList {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-  margin-top: 3rem;
+  gap: 32px;
 }
 
 .featureItem {
-  text-align: center;
-  padding: 1.5rem;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 16px;
 }
 
 .featureIcon {
-  width: 64px;
-  height: 64px;
-  background-color: #b4e7e3;
-  border-radius: 50%;
-  margin: 0 auto 1rem;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+.featureIcon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.featureContent {
+  flex: 1;
+}
+
+.quoteIcon {
+  width: auto;
+  height: 40px;
+  margin-bottom: 16px;
+  opacity: 0.8;
+  object-fit: contain;
 }
 
 .testimonial {
-  background: linear-gradient(to right, #b4e7e3, #ffd7c9);
-  padding: 4rem 2rem;
+  background: linear-gradient(to bottom right, #b4e7e0, #98d8d1);
+  border-radius: 12px;
+  padding: 32px;
+  margin: 0 auto 64px;
+  max-width: fit-content;
   text-align: center;
-  margin: 4rem 0;
 }
 
 .testimonial blockquote {
+  text-align: center;
+  color: #333;
+  font-size: 16px;
+  margin-bottom: 16px;
   max-width: 800px;
-  margin: 0 auto;
-  font-size: 1.2rem;
-  line-height: 1.8;
+}
+
+.author {
+  text-align: right;
+  font-style: italic;
+  color: #333;
 }
 
 .contact {
-  padding: 4rem 2rem;
-  max-width: 800px;
-  margin: 0 auto;
+  max-width: 768px;
+  margin: 0 auto 64px;
+  padding: 32px 0;
+}
+
+.contact h2 {
+  font-size: 28px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.contact > p {
+  color: #a0a0a0;
+  text-align: center;
+  margin-bottom: 32px;
 }
 
 .contactForm {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 16px;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .formRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 16px;
 }
 
 .contactForm input,
 .contactForm textarea {
-  padding: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  background: transparent;
+  padding: 12px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
   color: white;
+}
+
+.contactForm textarea {
+  min-height: 120px;
+  resize: vertical;
 }
 
 .contactButton {
   background-color: #ffd7c9;
-  color: #1e1e1e;
+  color: black;
+  padding: 12px 24px;
   border: none;
-  padding: 1rem;
-  border-radius: 8px;
+  border-radius: 4px;
   cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.contactButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.contactButton:hover:not(:disabled) {
+  background-color: #ffc5b0;
+  transform: translateY(-1px);
+}
+
+.successMessage {
+  color: #4caf50;
+  text-align: center;
+  padding: 8px;
+}
+
+.errorMessage {
+  color: #f44336;
+  text-align: center;
+  padding: 8px;
 }
 
 .footer {
-  padding: 2rem;
-  text-align: center;
-  background-color: #1e1e1e;
+  margin-top: auto;
 }
 
-.footerLogo {
-  height: 30px;
+@media (min-width: 768px) {
+  .hero h1 {
+    font-size: 48px;
+  }
+
+  .subtitle {
+    font-size: 18px;
+  }
+
+  .chatPreview {
+    max-width: 600px;
+  }
+
+  .featuresList {
+    flex: 1;
+  }
+
+  .testimonial blockquote {
+    font-size: 18px;
+  }
+
+  .contact h2 {
+    font-size: 36px;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 @media (max-width: 768px) {
+  .testimonial {
+    margin: 0 16px;
+  }
+
   .featuresList {
     grid-template-columns: 1fr;
   }
 
-  .formRow {
-    grid-template-columns: 1fr;
+  .hero,
+  .features {
+    min-height: auto;
+    padding: 32px 0;
+  }
+}
+
+/* 添加平滑滚动效果 */
+html {
+  scroll-behavior: smooth;
+}
+
+/* 确保每个部分都占满视口高度 */
+.hero,
+.features {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 64px 0;
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+/* 添加视差滚动效果 */
+.chatPreviewContainer {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* 优化动画性能 */
+.container {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* 添加过渡效果 */
+.hero,
+.features {
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+@media (max-width: 768px) {
+  .hero,
+  .features {
+    min-height: auto;
+    padding: 32px 0;
   }
 }
