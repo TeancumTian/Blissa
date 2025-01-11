@@ -1,3 +1,6 @@
+set -e  # 遇到错误立即退出
+trap 'echo "Error occurred at line $LINENO. Exit code: $?"' ERR
+
 while getopts k:h:s: flag
 do
     case "${flag}" in
@@ -38,5 +41,25 @@ scp -r -i "$key" build/* ubuntu@$hostname:services/$service/public
 printf "\n----> Removing local copy of the distribution package\n"
 rm -rf build
 rm -rf dist
+
+# 添加部署确认
+printf "\n当前部署目标: services/${service}/public\n"
+read -p "确认继续部署? (y/n) " -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]
+then
+    exit 1
+fi
+
+# 添加部署完成验证
+printf "\n----> 验证部署结果\n"
+ssh -i "$key" ubuntu@$hostname << ENDSSH
+if [ -f "services/${service}/public/index.html" ]; then
+    echo "部署成功: 找到 index.html"
+else
+    echo "部署失败: 未找到 index.html"
+    exit 1
+fi
+ENDSSH
 
 #./deployReact.sh -k ~/ssh BlissaJan2025.pem -h startup.blissa.app -s startup
