@@ -1,8 +1,8 @@
 import React from "react";
 import styles from "./LandingPage.module.css";
-import appPreview from "../assets/images/app-preview.png";
-import blissaLogo from "../assets/images/blissa-logo.png";
-import chatPreview from "../assets/images/chat-preview.png";
+import appPreview from "../images/apppreview.png";
+import blissaLogo from "../images/blissalogo.png";
+import chatPreview from "../images/chatpreview.png";
 
 const LandingPage = () => {
   return (
